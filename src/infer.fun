@@ -76,7 +76,7 @@ struct
       let
         val goal = ([], e, ty)
         val constraints = eval ([goal], [])
-        val sigma = unify (constraints, emptySubst)
+        val sigma = unify constraints
         val ty' = substTy (sigma, ty)
       in
         ty'

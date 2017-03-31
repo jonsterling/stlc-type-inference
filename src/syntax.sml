@@ -42,8 +42,6 @@ struct
   (* TODO: use a suitable data structure *)
   type substitution = (ty_var * ty) list
 
-  val emptySubst = []
-
   fun lookup (sigma, sym) =
     case sigma of 
        [] => raise Fail "No such metavariable"
@@ -73,13 +71,13 @@ struct
     else
       ()
 
-  fun unify (cs, sigma) = 
+  fun unify' (cs, sigma) = 
     case cs of
        [] => sigma
      | (META sym =:= ty) :: cs' => unifyMeta (sym, ty, cs', sigma)
      | (ty =:= META sym) :: cs' => unifyMeta (sym, ty, cs', sigma)
-     | (ARR (ty11, ty12) =:= ARR (ty21, ty22)) :: cs' => unify ([ty11 =:= ty21, ty12 =:= ty22] @ cs', sigma)
-     | (UNIT =:= UNIT) :: cs' => unify (cs', sigma)
+     | (ARR (ty11, ty12) =:= ARR (ty21, ty22)) :: cs' => unify' ([ty11 =:= ty21, ty12 =:= ty22] @ cs', sigma)
+     | (UNIT =:= UNIT) :: cs' => unify' (cs', sigma)
      | _ => raise Fail "Unification error"
 
   and unifyMeta (sym, ty, cs, sigma) = 
@@ -88,7 +86,10 @@ struct
       val sigma' = [(sym, ty)]
       val cs' = substConstraints (sigma', cs)
     in
-      unify (cs', sigma' @ sigma)
+      unify' (cs', sigma' @ sigma)
     end
+
+  fun unify cs =
+    unify' (cs, [])
 
 end
