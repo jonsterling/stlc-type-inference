@@ -20,8 +20,6 @@ struct
   type state = subgoals * constraints
   datatype step = STEP of state | RET of constraints
 
-  exception Todo
-
   (* TODO: use a suitable data structure *)
   type substitution = (Meta.sym * meta_ty) list
   fun lookup (sigma : substitution, sym : Meta.sym) : meta_ty =
@@ -115,6 +113,8 @@ struct
              in
                ([goal], [ty =:= ARR (ty1, ty2)])
              end
+         | Syn.NIL => 
+             ([], [ty =:= UNIT])
       end
 
     (* The type inference state transition: if we have resolved all subgoals, 
