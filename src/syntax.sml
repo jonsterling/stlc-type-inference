@@ -47,14 +47,14 @@ struct
        [] => raise Fail "No such metavariable"
      | (sym', ty) :: sigma' => if Meta.eq (sym, sym') then ty else lookup (sigma', sym)
 
-  fun substTy (sigma, ty) = 
+  fun subst (sigma, ty) = 
     case ty of
        UNIT => UNIT
      | META sym => (lookup (sigma, sym) handle _ => Syn.META sym)
-     | ARR (ty1, ty2) => ARR (substTy (sigma, ty1), substTy (sigma, ty2))
+     | ARR (ty1, ty2) => ARR (subst (sigma, ty1), subst (sigma, ty2))
 
   fun substEquation (sigma, ty1 =:= ty2) =
-    substTy (sigma, ty1) =:= substTy (sigma, ty2)
+    subst (sigma, ty1) =:= subst (sigma, ty2)
 
   fun substConstraints (sigma, cs) = 
     List.map (fn c => substEquation (sigma, c)) cs

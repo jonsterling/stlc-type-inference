@@ -26,6 +26,6 @@ sig
   type constraints = equation list
 
   type substitution
-  val substTy : substitution * ty -> ty
+  val subst : substitution * ty -> ty
   val unify : constraints -> substitution
 end
