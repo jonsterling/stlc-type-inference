@@ -8,5 +8,8 @@ sig
       VAR of int
     | LAM of tm
     | AP of tm * tm
-    | NIL of tm
+    | NIL
+
+  val printTy : ty -> string
+  val printTm : tm -> string
 end
