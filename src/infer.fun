@@ -21,7 +21,7 @@ struct
   type substitution = (Meta.sym * ty) list
   fun lookup (sigma : substitution, sym : Meta.sym) : ty =
     case sigma of 
-       [] => raise Fail "No such metavariable"
+       [] => raise TypeError "No such metavariable"
      | (sym', ty) :: sigma' => if sym = sym' then ty else lookup (sigma', sym)
 
   fun subst (sigma : substitution, ty : ty) : ty = 
@@ -48,7 +48,7 @@ struct
 
   fun occursCheck (sym : Meta.sym, ty : ty) : unit =
     if occurs (sym, ty) then 
-      raise Fail "Occurs check"
+      raise TypeError "Occurs check"
     else
       ()
 
@@ -59,7 +59,7 @@ struct
      | (ty =:= Syn.META sym) :: cs' => unifySym (sym, ty, cs', sigma)
      | (Syn.ARR (ty11, ty12) =:= Syn.ARR (ty21, ty22)) :: cs' => unify ([ty11 =:= ty21, ty12 =:= ty22] @ cs', sigma)
      | (Syn.UNIT =:= Syn.UNIT) :: cs' => unify (cs', sigma)
-     | _ => raise Fail "Unification error"
+     | _ => raise TypeError "Unification error"
 
   and unifySym (sym : Meta.sym, ty : ty, cs : constraints, sigma : substitution) : substitution = 
     let
@@ -138,7 +138,8 @@ struct
       in
         ty'
       end
-      handle Fail msg => raise TypeError msg
+      handle TypeError msg => raise TypeError msg
+           | exn => raise TypeError ("Weird error: " ^ exnMessage exn)
 
     fun infer e = 
       check e (hole ())

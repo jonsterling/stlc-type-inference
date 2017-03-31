@@ -9,12 +9,11 @@ struct
     in
       print (printTm tm ^ " ==> " ^ printTy ty ^ "\n")
     end
-    handle TypeError msg => 
-      raise Fail ("Failed to infer term " ^ printTm tm ^ " with error: " ^ msg)
 
   fun test () = 
     List.app testInfer
       [LAM NIL,
-       LAM (VAR 0)]
+       LAM (VAR 0),
+       LAM (LAM (LAM (VAR 2)))]
 
 end
