@@ -22,7 +22,7 @@ struct
   fun lookup (sigma : substitution, sym : Meta.sym) : ty =
     case sigma of 
        [] => raise TypeError "No such metavariable"
-     | (sym', ty) :: sigma' => if sym = sym' then ty else lookup (sigma', sym)
+     | (sym', ty) :: sigma' => if Meta.eq (sym, sym') then ty else lookup (sigma', sym)
 
   fun subst (sigma : substitution, ty : ty) : ty = 
     case ty of
@@ -43,7 +43,7 @@ struct
   fun occurs (sym : Meta.sym, ty : ty) : bool = 
     case ty of
        Syn.UNIT => false
-     | Syn.META sym' => sym = sym'
+     | Syn.META sym' => Meta.eq (sym, sym')
      | Syn.ARR (ty1, ty2) => occurs (sym, ty1) orelse occurs (sym, ty2)
 
   fun occursCheck (sym : Meta.sym, ty : ty) : unit =
