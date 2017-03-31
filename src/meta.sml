@@ -10,4 +10,10 @@ struct
       counter := sym + 1;
       sym
     end
+
+  fun toString i = 
+    "#" ^ Int.toString i
+
+  fun eq (i, j) = 
+    i = j
 end

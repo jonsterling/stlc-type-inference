@@ -6,3 +6,4 @@ Group is
   syntax.sml
   infer.sig
   infer.fun
+  test.sml
