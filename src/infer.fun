@@ -59,6 +59,7 @@ struct
      | (ty =:= Syn.META sym) :: cs' => unifySym (sym, ty, cs', sigma)
      | (Syn.ARR (ty11, ty12) =:= Syn.ARR (ty21, ty22)) :: cs' => unify ([ty11 =:= ty21, ty12 =:= ty22] @ cs', sigma)
      | (Syn.UNIT =:= Syn.UNIT) :: cs' => unify (cs', sigma)
+     | _ => raise Fail "Unification error"
 
   and unifySym (sym : Meta.sym, ty : ty, cs : constraints, sigma : substitution) : substitution = 
     let
@@ -128,10 +129,8 @@ struct
        | STEP s' => eval s'
 
   in
-    (* To infer a type, calculate the constraints, exhibit a substitution, and then apply it. *)
-    fun infer e = 
+    fun check e ty = 
       let
-        val ty = hole ()
         val goal = ([], e, ty)
         val constraints = eval ([goal], [])
         val sigma = unify (constraints, [])
@@ -140,9 +139,9 @@ struct
         ty'
       end
       handle Fail msg => raise TypeError msg
-  end
 
-  fun check tm ty = 
-    Syn.eqTy (ty, infer tm)
-    handle _ => false
+    fun infer e = 
+      check e (hole ())
+
+  end
 end
