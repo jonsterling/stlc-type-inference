@@ -27,3 +27,45 @@ mode](https://marketplace.visualstudio.com/items?itemName=freebroccolo.sml)
 that has mostly correct highlighting (a herculean feat!) and integration with
 SML/NJ for type error reporting. (This is what the `sml.json` file is for in
 the root directory of this repository.)
+
+### dataset
+
+The file `dataset` contains 1,031,993 randomly generated term/type pairs. You
+can obtain it by extracting `dataset.xz` using `xz -d dataset.xz`. The first
+column is the term. The second column is its type. The two columns are separated
+by a single space. Example data points include:
+
+    (\0)(\(\\0)(0)) (1>(1>1))
+    (\0)(\(\0)((\\*)(0))) (1>(1>1)
+    * 1
+    (\*)(\\\\\*) 1
+    (\*)(\\\\3) 1
+
+I tried to minimise syntax to simplify things for our neural network. The syntax
+used for terms is
+
+    `NIL`        = *
+    `LAM t`      = \`t`
+    `AP (t1,t2)` = (`t1`)(`t2`)
+
+The syntax used for types is
+
+    `UNIT`       = 1
+    `AR (t1,t2)` = (`t1`>`t2`)
+    `META v`     = 1
+
+I replaced the type variables `META v` by `UNIT` to give us the simplest
+possible types. Again, our initial goal is to get ML to handle the simplest type
+inferences first, and then generalise.
+
+The longest term is 308 characters long:
+
+    (\(\\(\\*)((\*)(*)))((\(\(\(\\\\\\*)(\3))(\\4))((\(\\*)(\\\\\\\\\\\\10))((\\\\\\\\4)(\\\\\\\\*))))(\(\\\(\\\*)(*))((\\\\\\\\7)(\\\\\\\\4)))))((\(\\(\(\\\*)(\(\\1)(\\*)))(\(\\\\5)(\\\\1)))((\(\\\\\\\\\\\*)(\\*))((\\(\\\\\\\\\\*)(\\\\\\\\\\\\5))((\\(\\\\0)(\\\\\\\\\\\\*))(\(\*)(\\\\\\\\\\\\\\15))))))((\(\\\\0)((\\*)((\*)(\\\\\\\\3))))((\(\\*)((\\\\0)(\\\\\\\\\\\\\\7)))((\\1)((\\\\\\\\\\\\\3)(\\\\\\\\*))))))
+
+The longest type is 198 characters long:
+
+    (1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>(1>1)))))))))))))))))))))))))))))))))))))))))))))))))
+
+One can straightforwardly embed these into R^n (say, R^400 and R^300,
+respectively) by taking the vectors of ASCII character codes, and padding with
+zeros as needed.
