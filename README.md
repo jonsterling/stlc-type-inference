@@ -95,9 +95,10 @@ Because these won't necessarily be unique, you'll probably want to go
 
     $ ./rando N | sort -u
 
-The code in `rando.sml` uses hardcoded probabilities to decide what kind of term
-to generate. Edit these probabilities to change the complexity of the random
-terms we generate.
+Note that this introduces an ordering in the terms. You can pipe the output to
+`shuf` or `sort -R` to randomize it.  The code in `rando.sml` uses hardcoded
+probabilities to decide what kind of term to generate. Edit these probabilities
+to change the complexity of the random terms we generate.
 
 To preprocess the terms for input to neural networks, we did:
 
