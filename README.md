@@ -98,3 +98,10 @@ Because these won't necessarily be unique, you'll probably want to go
 The code in `rando.sml` uses hardcoded probabilities to decide what kind of term
 to generate. Edit these probabilities to change the complexity of the random
 terms we generate.
+
+To preprocess the terms for input to neural networks, we did:
+
+    $ cut -d' ' -f1 dataset | sed -e 's/./& /g' -e 's/\([0-9]\) \([0-9]\)/\1\2/g' -e 's/ $//g' | xz -9 - > terms.xz
+    $ cut -d' ' -f2 dataset | sed -e 's/./& /g' -e 's/ $//g' | xz -9 - > types.xz
+
+Line `n` of `terms` then has the type on line `n` of types.
