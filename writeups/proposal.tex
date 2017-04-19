@@ -1,0 +1,54 @@
+\documentclass{article}
+\usepackage[left=3cm,top=2cm,right=3cm,nohead,bottom=3cm]{geometry}
+\usepackage{listings}
+
+\title{Type Inference using Deep Learning\\15-780 Project Proposal}
+\author{Ankush Das, Costin B\u{a}descu, Jonathan Sterling and Ryan Kavanagh}
+
+\begin{document}
+\maketitle
+
+\section{Problem and Motivation}
+Type inference refers to the deduction of the type of an expression in a
+typed programming language. Functional programming
+languages, such as Standard ML, OCaml or Haskell, can automatically infer the
+type of an expression even in the absence of type annotations.  This
+form of type inference is usually implemented using the well-known
+Hindley--Milner algorithm~\cite{hindley1969principal, milner1978theory}.
+Unfortunately, in more complex type systems (e.g. System
+F~\cite{wells1999typability}), type inference is often an undecidable
+problem.
+
+To illustrate how type inference works, consider the following OCaml program:
+\begin{lstlisting}[columns=fullflexible, language=Caml]
+let rec factorial n =
+	if (n = 0) then 1
+	else n * factorial (n-1);;
+\end{lstlisting}
+OCaml's type checker will infer from the comparison $\mathsf{(n = 0)}$
+that $\mathsf{n}$ must have the same type as $0$, viz. $int$. Since the
+result of $\mathsf{factorial \; (n-1)}$ is multiplied by $\mathsf{n}$,
+it follows that \emph{factorial} must also return a term of type
+$int$. Hence, the type checker infers that the \emph{factorial} function
+has the type $int \to int$.
+
+\section{Outline of Approach}
+We propose to use deep learning to infer the types of expressions in the
+simply-typed $\lambda$-calculus (STLC). Since type inference for this
+calculus is decidable, we can use existing algorithms, such as
+Hindley--Milner, to generate a large training set of
+$\lambda$-expressions paired with their corresponding
+types. Furthermore, because type checking for the STLC is decidable, we
+can determine whether or not the type output by the neural network for a
+given expression is correct or not. The $\lambda$-calculus provides a
+tractable first step in exploring the applicability of deep learning
+techniques to programming language frameworks. Conditioned upon the
+succcess of this project, future extensions include the generalization
+to more complex type systems (e.g. System F, dependent type
+theory~\cite{martin-lof:1984}) and even more sophisticated undecidable
+problems such as program synthesis.
+
+\bibliographystyle{abbrv}
+\bibliography{refs}
+
+\end{document}
