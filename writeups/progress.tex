@@ -1,0 +1,116 @@
+\documentclass{amsart}
+% \usepackage[left=3cm,top=2cm,right=3cm,nohead,bottom=3cm]{geometry}
+\usepackage{mathpazo}
+\usepackage{microtype}
+\usepackage{listings}
+
+\title{Type Inference using Deep Learning\\15-780 Project Progress Report}
+\author{Ankush Das}
+\author{Costin B\u{a}descu}
+\author{Jonathan Sterling}
+\author{Ryan Kavanagh}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+Type inference refers to the deduction of the type of an expression in a
+typed programming language. Functional programming
+languages, such as Standard ML, OCaml or Haskell, can automatically infer the
+type of an expression even in the absence of type annotations.  This
+form of type inference is usually implemented using the well-known
+Hindley--Milner algorithm~\cite{hindley1969principal, milner1978theory}.
+Unfortunately, in more complex type systems (e.g. System
+F~\cite{wells1999typability}), type inference is often an undecidable
+problem.
+
+\section{Problem}
+Our project explores the feasibility of using deep learning to infer
+types of well-formed expressions in typed programming
+languages. Because our project is focussed on the feasibility aspect,
+we decided to begin with the simplest possible framework, namely, the
+simply-typed $\lambda$-calculus (STLC) with the unit type as its only
+base type.
+
+\section{Accomplishments}
+
+We began by first formalising the STLC in Standard ML. This involved
+making a few design choices that we believe would increase our chances
+of success. For example, variable binding is often implemented using
+explicit variable names. For example, the abstraction $\lambda x. xx$
+binds the variable $x$ in the term $xx$. However, one can freely vary
+bound variables (intuitively, $f(x) = x^2$ and $f(y) = y^2$ denote the
+same function, even though the names of the variables are different,
+just like $\int x\ dx$ and $\int y\ dy$ capture the same
+anti-derivative). Because we wanted to minimise the complexity of the
+task the neural networks needed to learn, we decided to use an
+approach that abstracts away with explicit variable names, namely,
+\textit{de Bruijn} indices, where integers are used to capture the
+binding in terms of the structure of the term. For example,
+$\lambda x.\lambda y.x$ becomes $\lambda.\lambda.1$ and
+$\lambda x.\lambda y.y$ becomes $\lambda . \lambda . 0$.
+
+Having implemented the STLC, we then implemented a type inferencer,
+which given a lambda term infers a family of possible types. For
+example, the lambda term $\verb!LAM NIL! \cong \lambda.*$ intuitively
+takes an argument of unspecified type, and returns the term $*$ of
+type unit (denoted ``1''), and so it has type $T \to 1$, where $T$ is
+a type variable that can be instantiated with an arbitrary
+type. Similarly, the term $\verb!LAM (VAR 0)! \cong \lambda.0$
+intuivitely takes an argument of unspecified type, and returns the
+same argument again, and so has type $T \to T$, where $T$ is as above.
+Keeping in line with our desire to simplify the problem for the neural
+networks, we instantiated all type holes with the unit type so as to
+give us the simplest possible types to learn. We also have a type
+checker which, given a term $t$ and a candidate type $T$, tells us
+whether or not term $t$ can have type $T$.
+
+We next implemented a randomized algorithm to generate our training
+data. The training data consists of over one million pairs of terms
+and types. We adopted a minimalistic syntax to capture terms and
+types, and used prefix notation for types because we (intuitively, but
+without any real scientific basis) believed it would make the tree
+structure more apparent than infix notation (compare, e.g.,
+$\verb!> T T'!$ to $\verb!T > T'!$ to denote the type $T \to T'$),
+This is because the neural networks we consider process input
+sequences sequentially, and we thought prefix notation might hint to
+the network what kind of data to expect next.
+
+We have been experimenting with various neural networks to learn this
+inductive algorithm. For example, we have tried the ``seq2seq'' RNN
+bundled with TensorFlow, which is can allegedly successfully do
+natural language translation. This RNN is composed of two parts. The
+first is an ``encoder'' takes an input sequence, and encodes it (using
+a representation it has learned on its own), and transforms it to
+produce a ``context''. The second is the ``decoder'', which takes a
+context as input, and produces a word. It then repeatedly produces a
+new word given the context and the word it just produced until it
+believes it is done. Because natural language and $\lambda$-terms and
+types can all be parsed from sequences of tokens into syntax trees
+(albeit of much different complexity), we believed this neural network
+might be well-suited to the task of translating $\lambda$-terms (i.e.,
+``sentences in the language of the $\lambda$-calculus'') into types
+(i.e., ``sentences in the language of simple types'').
+
+\section{Preliminary Results}
+
+The ``seq2seq'' approach has been unsuccessful. Though it usually
+succeeded in generating well-formed types for given input
+$\lambda$-terms, these types were invariably incorrect.
+
+\section{Future Work}
+
+We will try training the above neural networks longer, and experiment
+with different networks.
+
+A few days ago, we learned of the NAMPI (Neural Abstract Machines \&
+Program Induction) workshop at NIPS 2016, which is dedicated to
+applying machine learning to inductive programming and program
+synthesis. We hope to find some interesting neural networks (or
+approaches to dealing with inductive structures) in its proceedings
+that we can adapt to our problem.
+
+\bibliographystyle{abbrv}
+\bibliography{refs}
+
+\end{document}
