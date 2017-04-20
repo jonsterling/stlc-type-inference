@@ -1,8 +1,7 @@
 \documentclass{amsart}
-% \usepackage[left=3cm,top=2cm,right=3cm,nohead,bottom=3cm]{geometry}
+%\usepackage[left=3cm,right=3cm,nohead,bottom=3cm]{geometry}
 \usepackage{mathpazo}
 \usepackage{microtype}
-\usepackage{listings}
 
 \title{Type Inference using Deep Learning\\15-780 Project Progress Report}
 \author{Ankush Das}
@@ -13,24 +12,29 @@
 \begin{document}
 \maketitle
 
-\section{Background}
+\section{Background and Problem}
 Type inference refers to the deduction of the type of an expression in a
-typed programming language. Functional programming
-languages, such as Standard ML, OCaml or Haskell, can automatically infer the
-type of an expression even in the absence of type annotations.  This
-form of type inference is usually implemented using the well-known
-Hindley--Milner algorithm~\cite{hindley1969principal, milner1978theory}.
+typed programming language. Type inference is usually implemented
+using the well-known Hindley--Milner algorithm.
 Unfortunately, in more complex type systems (e.g. System
-F~\cite{wells1999typability}), type inference is often an undecidable
+F), type inference is often an undecidable
 problem.
 
-\section{Problem}
 Our project explores the feasibility of using deep learning to infer
 types of well-formed expressions in typed programming
 languages. Because our project is focussed on the feasibility aspect,
 we decided to begin with the simplest possible framework, namely, the
 simply-typed $\lambda$-calculus (STLC) with the unit type as its only
-base type.
+base type. Formally, the types and expressions in our language is
+defined with the following grammar.
+\begin{eqnarray*}
+\tau & ::= & \mathbf{1} \mid \tau \to \tau \\
+e & ::= & * \mid \lambda x. e \mid e \; e
+\end{eqnarray*}
+The base expression $*$ has type $\mathbf{1}$, $\lambda x. e$ has type
+$\tau_1 \to \tau_2$, if $e$ has the type $\tau_2$ given that $x$ has type
+$\tau_1$. Similarly, $e_1 \; e_2$ has the type $\tau_2$ is $e_1$ has the
+type $\tau_1 \to \tau_2$ and $e_2$ has the type $\tau_1$.
 
 \section{Accomplishments}
 
@@ -78,7 +82,7 @@ the network what kind of data to expect next.
 
 We have been experimenting with various neural networks to learn this
 inductive algorithm. For example, we have tried the ``seq2seq'' RNN
-bundled with TensorFlow, which is can allegedly successfully do
+bundled with TensorFlow, which can allegedly successfully do
 natural language translation. This RNN is composed of two parts. The
 first is an ``encoder'' takes an input sequence, and encodes it (using
 a representation it has learned on its own), and transforms it to
@@ -92,23 +96,35 @@ might be well-suited to the task of translating $\lambda$-terms (i.e.,
 ``sentences in the language of the $\lambda$-calculus'') into types
 (i.e., ``sentences in the language of simple types'').
 
-\section{Preliminary Results}
+\section{Preliminary Results and Future Work}
 
 The ``seq2seq'' approach has been unsuccessful. Though it usually
 succeeded in generating well-formed types for given input
 $\lambda$-terms, these types were invariably incorrect.
 
-\section{Future Work}
-
 We will try training the above neural networks longer, and experiment
 with different networks.
-
 A few days ago, we learned of the NAMPI (Neural Abstract Machines \&
 Program Induction) workshop at NIPS 2016, which is dedicated to
 applying machine learning to inductive programming and program
 synthesis. We hope to find some interesting neural networks (or
 approaches to dealing with inductive structures) in its proceedings
 that we can adapt to our problem.
+
+Another direction will be pursuing is stack LSTMs~\cite{DyerBLMS15}.
+Conventional LSTMs are limited in their applicability because
+they model sequences in a left-to-right order, i.e. they read an input,
+say $x_t$ and compute a new hidden state $h_t$ by applying a linear map
+to the concatenation of $h_{t-1}$ and $x_t$. Lambda expressions
+have a binary tree structure and can't be parsed in a left to right order.
+For e.g., when parsing a function application, $e_1 \; e_2$, when
+reading input $e_2$, the new hidden state should be computed from
+the hidden state corresponding to $e_1$. Stack LSTMs
+which maintain an additional stack pointer which decides which
+LSTM cell will provide the the hidden state $h_{t-1}$ on which
+the new hidden state $h_t$ will be computed. This seems
+as a natural technique that should apply to our type inference
+problem.
 
 \bibliographystyle{abbrv}
 \bibliography{refs}
