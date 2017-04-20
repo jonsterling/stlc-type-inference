@@ -21,12 +21,12 @@ F), type inference is often an undecidable
 problem.
 
 Our project explores the feasibility of using deep learning to infer
-types of well-formed expressions in typed programming
-languages. Because our project is focussed on the feasibility aspect,
-we decided to begin with the simplest possible framework, namely, the
-simply-typed $\lambda$-calculus (STLC) with the unit type as its only
-base type. Formally, the types and expressions in our language is
-defined with the following grammar.
+types of well-formed expressions in typed programming languages. Because
+our project is focused on the feasibility aspect, we decided to begin
+with the simplest possible framework, namely, the simply-typed
+$\lambda$-calculus (STLC) with the unit type as its only base
+type. Formally, the types and expressions in our language are defined by
+the following grammar:
 \begin{eqnarray*}
 \tau & ::= & \mathbf{1} \mid \tau \to \tau \\
 e & ::= & * \mid \lambda x. e \mid e \; e
@@ -70,29 +70,28 @@ checker which, given a term $t$ and a candidate type $T$, tells us
 whether or not term $t$ can have type $T$.
 
 We next implemented a randomized algorithm to generate our training
-data. The training data consists of over one million pairs of terms
-and types. We adopted a minimalistic syntax to capture terms and
-types, and used prefix notation for types because we (intuitively, but
-without any real scientific basis) believed it would make the tree
-structure more apparent than infix notation (compare, e.g.,
-$\verb!> T T'!$ to $\verb!T > T'!$ to denote the type $T \to T'$),
-This is because the neural networks we consider process input
-sequences sequentially, and we thought prefix notation might hint to
-the network what kind of data to expect next.
+data. The training data consists of over one million pairs of terms and
+types. We adopted a minimalistic syntax to capture terms and types, and
+used prefix notation for types because we figured that it would make the
+tree structure more apparent than infix notation (compare, e.g.,
+$\verb!> T T'!$ to $\verb!T > T'!$ to denote the type $T \to T'$), This
+is because the neural networks we consider process input sequences
+sequentially, and we thought prefix notation might hint to the network
+what kind of data to expect next.
 
 We have been experimenting with various neural networks to learn this
 inductive algorithm. For example, we have tried the ``seq2seq'' RNN
-bundled with TensorFlow, which can allegedly successfully do
+bundled with TensorFlow, which can allegedly successfully perform
 natural language translation. This RNN is composed of two parts. The
-first is an ``encoder'' takes an input sequence, and encodes it (using
-a representation it has learned on its own), and transforms it to
-produce a ``context''. The second is the ``decoder'', which takes a
-context as input, and produces a word. It then repeatedly produces a
-new word given the context and the word it just produced until it
-believes it is done. Because natural language and $\lambda$-terms and
-types can all be parsed from sequences of tokens into syntax trees
-(albeit of much different complexity), we believed this neural network
-might be well-suited to the task of translating $\lambda$-terms (i.e.,
+first is an ``encoder'' takes an input sequence, and encodes it (using a
+representation it has learned on its own), and transforms it to produce
+a ``context''. The second is the ``decoder'', which takes a context as
+input, and produces a word. It then repeatedly produces a new word given
+the context and the word it just produced until it believes it is
+done. Because natural language and $\lambda$-terms and types can all be
+parsed from sequences of tokens into syntax trees (albeit of much
+different complexity), we believed this neural network might be
+well-suited to the task of translating $\lambda$-terms (i.e.,
 ``sentences in the language of the $\lambda$-calculus'') into types
 (i.e., ``sentences in the language of simple types'').
 
@@ -100,7 +99,7 @@ might be well-suited to the task of translating $\lambda$-terms (i.e.,
 
 The ``seq2seq'' approach has been unsuccessful. Though it usually
 succeeded in generating well-formed types for given input
-$\lambda$-terms, these types were invariably incorrect.
+$\lambda$-terms, these types were often incorrect.
 
 We will try training the above neural networks longer, and experiment
 with different networks.
