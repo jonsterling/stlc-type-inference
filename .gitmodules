@@ -1,0 +1,6 @@
+[submodule "writeups/notation"]
+	path = writeups/notation
+	url = https://github.com/jonsterling/latex-common-notation.git
+[submodule "writeups/references"]
+	path = writeups/references
+	url = https://github.com/jonsterling/bibtex-references.git

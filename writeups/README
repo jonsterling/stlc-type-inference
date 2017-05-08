@@ -1,0 +1,6 @@
+To build the final report, run:
+
+    ./final-report.sh
+
+All this does is ensures that submodules are up to date, and then uses
+`latexmk`.

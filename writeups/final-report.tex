@@ -1,0 +1,435 @@
+\documentclass[twocolumn,9pt]{article}
+\usepackage{fullpage}
+\usepackage{libertineRoman}
+\usepackage{microtype}
+\usepackage{libertineRoman}
+\usepackage{eulervm}
+\usepackage{sectsty}
+\usepackage{notation/modes}
+\usepackage{notation/lists}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{proof}
+\usepackage{stmaryrd}
+
+\allsectionsfont{\sffamily}
+
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{cor}[thm]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[thm]{Definition}
+\newtheorem{example}[thm]{Example}
+\newtheorem{notation}[thm]{Notation}
+\newtheorem{convention}[thm]{Convention}
+\newtheorem{construction}[thm]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[thm]{Remark}
+
+\numberwithin{equation}{section}
+
+\usepackage[
+  backref,
+  colorlinks,
+  hyperfigures,
+  hyperfootnotes,
+  pagebackref,
+  pdfdisplaydoctitle,
+  pdfencoding=auto,
+  psdextra,
+  unicode,
+  citecolor=NavyBlue
+]{hyperref}
+
+\newcommand\JdgDecl[2]{%
+  \DeclBox{\IBox{#1}}%
+  \ \ \textit{pronounced}\ \ %
+  \DeclBox{\OBox{\text{#2}}}%
+}
+
+
+\newcommand\Nat{\mathbb{N}}
+\newcommand\Member[2]{\IMode{#1}\in\IMode{#2}}
+\newcommand\STLC{\textbf{STLC}}
+\newcommand\FStar{\ensuremath{\text{F}^\star}}
+\newcommand\RedPRL{\textbf{\textcolor{red}{Red}PRL}}
+
+\newcommand\Nil{*}
+\newcommand\Fn[2]{\mathtt{fn}\ {#1}\Rightarrow{#2}}
+\newcommand\DBFn[1]{\mathtt{fn} (#1)}
+\newcommand\TyUnit{\mathtt{unit}}
+\newcommand\TyArr[2]{#1\to{#2}}
+\newcommand\Var[1]{\overline{#1}}
+
+\newcommand\OfTy[3]{\IMode{#1}\vdash\IMode{#2}:\IMode{#3}}
+
+\newcommand\RuleVar{\mathsf{var}}
+\newcommand\RuleNil{\mathsf{nil}}
+\newcommand\RuleFn{\mathsf{fn}}
+\newcommand\RuleAp{\mathsf{ap}}
+
+\newcommand\Braces[1]{{\color{gray}\left\{#1\right\}}}
+\newcommand\MkGoal[3]{\langle{#1}\vdash{#2}:{#3}\rangle}
+\newcommand\MkEq[2]{\langle{#1}\doteq{#2}\rangle}
+\newcommand\Decomp[3]{\IMode{#1}\longrightarrow\Braces{\OMode{#2}}\sslash\Braces{\OMode{#3}}}
+\newcommand\ADecomp[3]{\IMode{#1}&\longrightarrow\Braces{\OMode{#2}}\sslash\Braces{\OMode{#3}}}
+\newcommand\StEval[3]{\Braces{\IMode{#1}}\sslash\Braces{\IMode{#2}}\Longrightarrow\Braces{\OMode{#3}}}
+\newcommand\LocalUnify[3]{\IMode{#1}\longrightarrow\Braces{\OMode{#2}}\triangleright\Braces{\OMode{#3}}}
+\newcommand\ALocalUnify[3]{\IMode{#1}&\longrightarrow\Braces{\OMode{#2}}\triangleright\Braces{\OMode{#3}}}
+\newcommand\NoOccurs[2]{\IMode{#1}\mathrel{\text{does not occur in}}\IMode{#2}}
+\newcommand\Unify[3]{\Braces{\IMode{#1}}\triangleright\Braces{\IMode{#2}}\Longrightarrow\Braces{\OMode{#3}}}
+\newcommand\InferTy[3]{\IMode{#1}\vdash\IMode{#2}\Rightarrow\OMode{#3}}
+\newcommand\Subst[2]{\widehat{#1} (#2)}
+
+
+
+
+\title{Learning Simple Types}
+\author{Costin B\u{a}descu\and Ankush Das\and Ryan Kavanagh\and Jon Sterling}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Type structure is the fundamental organizing principle of code, both
+in theory and in practice. Types express the range of significance of
+a piece of code: for instance, the function $\IMode{\Fn{x}{x+1}}$ is
+meaningful only when applied to an expression which supports an
+addition operation.
+
+Depending on the purpose of a programming language, different forms of
+type structure may be imposed; suitable implementation strategies for
+type systems vary wildly depending on their characteristics.
+
+\begin{enumerate}
+\item Some type systems (including \emph{simple types} and
+  \emph{prenex-polymorphic types}) support \textbf{type inference}: an
+  algorithm which either assigns a type to a piece of code, or
+  exhibits that code as ill-typed.
+\item More sophisticated type systems (including full
+  \emph{polymorphic types} and \emph{intensional dependent types})
+  support \textbf{type checking}: an algorithm which decides whether a
+  piece of code exhibits a \emph{given} type.
+\item Even more sophisticated type systems (such as \emph{extensional
+    dependent types}) support only \textbf{type proving}: given a
+  piece of code, a type, and a candidate derivation (proof) that this
+  code exhibits this type, we can decide whether this derivation is
+  correct.
+\end{enumerate}
+
+As can be seen above, available implementation strategies dwindle as
+type systems become more sophisticated, eventually converging at a
+state of affairs where a practitioner must supply a proof of
+well-typedness. However, this does not rule out the use of
+\emph{heuristics} in sophisticated type systems which achieve type
+inference or type checking in some cases, but fail in others.
+
+In some implementations of dependent type theory such as
+Nuprl~\cite{constable:1986} and \RedPRL{}~\cite{redprl:2016}, these
+heuristics take the form of \emph{proof
+  tactics}~\cite{gordon-milner-wadsworth:1979,paulson:1987,gordon:2000}. It
+is also possible to consider heuristics based on external SMT solvers
+as in the \FStar{}~language~\cite{ahman-et-al:2017}, which uses the Z3
+solver to resolve obligations. Finally, machine learning techniques
+have also been applied to interactive proof assistants such as
+Coq~\cite{komendantskaya-heras-grov:2012}.
+
+\paragraph{Thesis}
+The authors believe that at the current stage of scientific
+development, where fully-automated inference is no longer possible,
+the principal contradiction of type systems praxis lies in the
+development of effective heuristics for type inference and type
+checking. To this end, we have applied techniques from \emph{deep
+  learning} to address a restricted subproblem, namely type inference
+for the simply typed lambda calculus (\STLC{}) with a single base type.
+
+\section{Simply Typed Lambda Calculus}
+The simply typed lambda calculus (\STLC{}) is the simplest possible
+programming language, and provided a suitable environment in which to
+test our ideas before applying them to more difficult problems. In
+Figure~\ref{fig:stlc-grammar-and-declarative-typing}, we define the
+syntax and \emph{declarative} typing rules for the \STLC{}.
+
+\paragraph{Declative vs algorithmic typing}
+Declarative typing judgments give a mathematical definition of the
+typing relation for programs; such a definition is not usually
+suitable for implementation. In the case of \STLC{}, we will define an
+algorithmic \emph{type inference} relation which is adequate (sound
+and complete) with respect to the declarative typing relation.
+
+\begin{figure*}
+  \begin{align*}
+    \IMode{\tau} &::= \FormatList{\OMode}{\mid}{\TyUnit,\TyArr{\IMode{\tau}}{\IMode{\tau}}}
+    \tag{Types}
+    \\
+    \IMode{e} &::= \FormatList{\OMode}{\mid}{x, \Nil, \Fn{\IMode{x}}{\IMode{e_x}}, \IMode{e}(\IMode{e})}
+    \tag{Programs}
+    \\
+    \IMode{\Gamma} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\Gamma},\IMode{x}:\IMode{\tau}}}
+    \tag{Typing contexts}
+  \end{align*}
+  \begin{gather*}
+    \JdgDecl{
+      \OfTy{\Gamma}{e}{\tau}
+    }{
+      $\IMode{e}$ is of type $\IMode{\tau}$ in context $\IMode{\Gamma}$
+    }
+    \\[6pt]
+    \infer[\RuleVar]{
+      \OfTy{\Gamma,x:\tau,\Gamma'}{x}{\tau}
+    }{
+    }
+    \qquad
+    \infer[\RuleNil]{
+      \OfTy{\Gamma}{\Nil}{\TyUnit}
+    }{
+    }
+    \\[6pt]
+    \infer[\RuleFn]{
+      \OfTy{\Gamma}{\Fn{x}{e_x}}{\TyArr{\tau_1}{\tau_2}}
+    }{
+      \OfTy{\Gamma,x:\tau_1}{e_x}{\tau_2}
+    }
+    \qquad
+    \infer[\RuleAp]{
+      \OfTy{\Gamma}{e_1(e_2)}{\tau_2}
+    }{
+      \OfTy{\Gamma}{e_1}{\TyArr{\tau_1}{\tau_2}}
+      &
+      \OfTy{\Gamma}{e_2}{\tau_1}
+    }
+  \end{gather*}
+  
+  \caption{Grammar and declarative typing rules for the \STLC{}. In
+    this definition, we use names for bound variables and indicate
+    binding scope using
+    subscripts.}\label{fig:stlc-grammar-and-declarative-typing}
+\end{figure*}
+
+\subsection{Algorithmic type inference}
+
+In Figure~\ref{fig:stlc-algorithmic-grammar}, we give a version of the
+grammar of \STLC{} augmented with \emph{type metavariables}, which
+play a crucial role in the type inference process.
+Our grammar also includes syntax
+for the states of the type inference machine, including typing goals,
+typing goal stacks, unification equations, unification constraint
+sets, and type substitutions.
+
+Additionally, in this treatment we use De Bruijn indices rather than
+names to account for binding; De Bruijn indices reflect the
+address/location of a variable's binding in a syntax tree.
+%
+Among other things, De Bruijn presentations of calculi with binding
+structure are easier to work with computationally, because they
+eliminate the need to work with equivalence classes of terms under
+permutations of bound variable names.
+
+\begin{figure*}
+  \begin{align*}
+    \IMode{\tau} &::= \FormatList{\OMode}{\mid}{\alpha, \TyUnit,\TyArr{\IMode{\tau}}{\IMode{\tau}}}
+    \tag{Types}
+    \\
+    \IMode{e} &::= \FormatList{\OMode}{\mid}{\Var{n}, \Nil, \DBFn{\IMode{e}}, \IMode{e}(\IMode{e})}
+    \tag{Programs}
+    \\
+    \IMode{\Gamma} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\Gamma},\IMode{\tau}}}
+    \tag{Typing contexts}
+    \\
+    \IMode{\mathcal{G}} &::= \OMode{\MkGoal{\IMode{\Gamma}}{\IMode{e}}{\IMode{\tau}}}
+    \tag{Typing goals}
+    \\
+    \IMode{\mathcal{S}} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\mathcal{G}},\IMode{\mathcal{S}}}}
+    \tag{Typing stacks}
+    \\
+    \IMode{\mathcal{E}} &::= \OMode{\MkEq{\IMode{e}}{\IMode{e}}}
+    \tag{Unification equations}
+    \\
+    \IMode{\mathcal{C}} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\mathcal{E}},\IMode{\mathcal{C}}}}
+    \tag{Unification constraints}
+    \\
+    \IMode{\gamma} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\alpha}\hookrightarrow\IMode{\tau},\IMode{\gamma}}}
+    \tag{Substitutions}
+  \end{align*}
+
+  Write $\IMode{\Subst{\gamma}{-}}$ for the action of the substitution
+  $\IMode{\gamma}$, which proceeds by replacing $\IMode{\alpha}$ with
+  $\OMode{\tau}$ when $\IMode{\alpha\hookrightarrow\tau}$ is in
+  $\IMode{\gamma}$. This notation applies at all syntactic categories.
+
+  \caption{Grammar of algorithmic \STLC{} used in algorithmic type
+    inference.  For this presentation, we use \emph{de Bruijn indices}
+    $\IMode{\Var{n}}$ with $\Member{n}{\Nat}$ rather than names for
+    program variables. Observe that we have added \emph{metavariables}
+    $\IMode{\alpha}$ to the grammar of types, which will serve as
+    placeholders to be resolved during unification.
+  }\label{fig:stlc-algorithmic-grammar}
+\end{figure*}
+
+Next, in Figure~\ref{fig:algorithmic-type-inference} we give the full
+type inference algorithm for \STLC{} in terms of constraint generation
+and first-order unification. We have used this algorithm in our
+implementation in order to generate training data for our neural
+network.
+
+\begin{figure*}
+  \begin{gather*}
+    \JdgDecl{
+      \Decomp{\mathcal{G}}{\mathcal{S}}{\mathcal{C}}
+    }{
+      $\IMode{\mathcal{G}}$ decomposes into $\OMode{\mathcal{S}}$ modulo $\OMode{\mathcal{C}}$
+    }
+    \\[6pt]
+    \begin{aligned}
+      \ADecomp{
+        \MkGoal{\Gamma}{\Var{i}}{\tau}
+      }{
+        \cdot
+      }{
+        \MkEq{\tau}{\Gamma_i}
+      }
+      \\
+      \ADecomp{
+        \MkGoal{\Gamma}{\Nil}{\tau}
+      }{
+        \cdot
+      }{
+        \MkEq{\tau}{\TyUnit}
+      }
+      \\
+      \ADecomp{
+        \MkGoal{\Gamma}{\DBFn{e}}{\tau}
+      }{
+        \MkGoal{\Gamma,\alpha}{e}{\beta}
+      }{
+        \MkEq{\tau}{\TyArr{\alpha}{\beta}}
+      }
+      \\
+      \ADecomp{
+        \MkGoal{\Gamma}{e_1(e_2)}{\tau}
+      }{
+        \MkGoal{\Gamma}{e_1}{\TyArr{\alpha}{\tau}},
+        \MkGoal{\Gamma}{e_2}{\alpha}
+      }{
+        \cdot
+      }
+    \end{aligned}
+  \end{gather*}
+
+  \begin{gather*}
+    \JdgDecl{
+      \StEval{\mathcal{S}}{\mathcal{C}}{\mathcal{C}'}
+    }{
+      $\IMode{\mathcal{S}}$ modulo $\IMode{\mathcal{C}}$ generates constraints $\OMode{\mathcal{C}'}$ 
+    }
+    \\[6pt]
+    \infer{
+      \StEval{\cdot}{\mathcal{C}}{\mathcal{C}}
+    }{
+    }
+    \qquad
+    \infer{
+      \StEval{\mathcal{G},\mathcal{S}}{\mathcal{C}}{\mathcal{C}'}
+    }{
+      \Decomp{\mathcal{G}}{\mathcal{S}_{\mathcal{G}}}{\mathcal{C}_{\mathcal{G}}}
+      &
+      \StEval{\mathcal{S}\cup\mathcal{S}_{\mathcal{G}}}{\mathcal{C}\cup\mathcal{C}_{\mathcal{G}}}{\mathcal{C}'}
+    }
+  \end{gather*}
+
+  \begin{gather*}
+    \JdgDecl{
+      \LocalUnify{\mathcal{E}}{\mathcal{C}}{\gamma}
+    }{
+      $\IMode{\mathcal{E}}$ generates additional constraints $\OMode{\mathcal{C}}$ and substitution $\OMode{\gamma}$
+    }
+    \\[6pt]
+    \infer{
+      \LocalUnify{
+        \MkEq{\alpha}{\tau}
+      }{
+        \cdot
+      }{
+        \alpha\hookrightarrow\tau
+      }
+    }{
+      \NoOccurs{\alpha}{\tau}
+    }
+    \qquad
+    \infer{
+      \LocalUnify{
+        \MkEq{\tau}{\alpha}
+      }{
+        \cdot
+      }{
+        \alpha\hookrightarrow\tau
+      }
+    }{
+      \NoOccurs{\alpha}{\tau}
+    }
+    \\[6pt]
+    \begin{aligned}
+      \ALocalUnify{\MkEq{\TyUnit}{\TyUnit}}{\cdot}{\cdot}
+      \\
+      \ALocalUnify{\MkEq{\TyArr{\tau_1}{\tau_2}}{\TyArr{\tau_1'}{\tau_2'}}}{
+        \MkEq{\tau_1}{\tau_1'},
+        \MkEq{\tau_2}{\tau_2'}
+      }{\cdot}
+    \end{aligned}
+  \end{gather*}
+
+  \begin{gather*}
+    \JdgDecl{
+      \Unify{\gamma}{\mathcal{C}}{\gamma'}
+    }{
+      constraints $\IMode{\mathcal{C}}$ take substitution $\IMode{\gamma}$ to $\OMode{\gamma'}$
+    }
+    \\[6pt]
+    \infer{
+      \Unify{\gamma}{\cdot}{\gamma}
+    }{
+    }
+    \qquad
+    \infer{
+      \Unify{\gamma}{\mathcal{E},\mathcal{C}}{\gamma'}
+    }{
+      \LocalUnify{\mathcal{E}}{\mathcal{C}_{\mathcal{E}}}{\gamma_{\mathcal{E}}}
+      &
+      \Unify{\gamma\cup\gamma_{\mathcal{E}}}{\Subst{\gamma_{\mathcal{E}}}{\mathcal{C}}\cup\mathcal{C}_{\mathcal{E}}}{\gamma'}
+    }
+  \end{gather*}
+
+  \begin{gather*}
+    \JdgDecl{
+      \InferTy{\Gamma}{e}{\tau}
+    }{
+      the term $\IMode{e}$ infers type $\OMode{\tau}$ given context $\IMode{\Gamma}$
+    }
+    \\[6pt]
+    \infer{
+      \InferTy{\Gamma}{e}{\Subst{\gamma}{\alpha}}
+    }{
+      \StEval{
+        \MkGoal{\Gamma}{e}{\alpha}
+      }{\cdot}{\mathcal{C}}
+      &
+      \Unify{\cdot}{\mathcal{C}}{\gamma}
+    }
+  \end{gather*}
+  
+  \caption{Definition of algorithmic type inference for \STLC{}. We
+    have factored the type inference algorithm into several judgments:
+    local decomposition of typing problems, evaluation of typing
+    problem stacks into constraint sets, local decomposition of
+    equational constraints, and evaluation of constraint sets into
+    substitutions.}\label{fig:algorithmic-type-inference}
+\end{figure*}
+
+\bibliographystyle{abbrv}
+\bibliography{references/refs}
+
+\end{document}

@@ -1,3 +1,11 @@
+### dependencies
+
+The LaTeX files have dependencies via git submodules. Please run the following
+before attempting to build anything:
+
+    git submodule update --init --recursive
+
+
 ### hacking
 
 To run or hack on this, ensure that you have SML/NJ installed. Then, open an SML REPL:
