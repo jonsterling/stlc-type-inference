@@ -19,3 +19,6 @@ writeups/auto
 *.brf
 *.pdf
 *.cpt
+*.nav
+*.snm
+*.xdv
