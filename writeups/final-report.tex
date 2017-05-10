@@ -3,6 +3,7 @@
 \usepackage{libertineRoman}
 \usepackage{microtype}
 \usepackage{libertineRoman}
+\usepackage[utf8]{inputenc}
 \usepackage{eulervm}
 \usepackage{sectsty}
 \usepackage{notation/modes}
@@ -203,7 +204,7 @@ and complete) with respect to the declarative typing relation.
       \OfTy{\Gamma}{e_2}{\tau_1}
     }
   \end{gather*}
-  
+
   \caption{Grammar and declarative typing rules for the \STLC{}. In
     this definition, we use names for bound variables and indicate
     binding scope using
@@ -324,7 +325,7 @@ network.
     \JdgDecl{
       \StEval{\mathcal{S}}{\mathcal{C}}{\mathcal{C}'}
     }{
-      $\IMode{\mathcal{S}}$ with constraints $\IMode{\mathcal{C}}$ generates constraints $\OMode{\mathcal{C}'}$ 
+      $\IMode{\mathcal{S}}$ with constraints $\IMode{\mathcal{C}}$ generates constraints $\OMode{\mathcal{C}'}$
     }
     \\[6pt]
     \infer{
@@ -420,7 +421,7 @@ network.
       \Unify{\cdot}{\mathcal{C}}{\gamma}
     }
   \end{gather*}
-  
+
   \caption{Definition of algorithmic type inference for \STLC{}. We
     have factored the type inference algorithm into several judgments:
     local decomposition of typing problems, evaluation of typing
@@ -432,7 +433,31 @@ network.
 
 \section{Training Data Generation}
 
-Ryan, please write something here.
+We implemented a naïve randomized algorithm to generate over one
+million unique pairs of terms and their inferred types. This algorithm
+randomly decided which term former to use, that is, whether to
+generate an application, an abstraction, a variable, or a unit
+term. In the cases where it chose to generate an application or an
+abstraction, it then recursed to generate the required subterms. A
+subtle point in the generation of subterms for abstractions was that
+the left term must have a function type for the abstraction to be
+well-typed. Generating a sufficient variety of terms required
+carefully tuning the probabilities associated with each type former.
+
+To reduce complexity, we adopted a minimalistic concrete syntax for
+terms and types. We also adopted prefix notation for types. For
+example, we denoted the type $\TyUnit \to (\TyUnit \to \TyUnit)$ as
+\verb!> 1 (> 1 1)!. We made this design choice because the
+sequence-to-sequence model processes input sequences sequentially, and
+we hypothesised prefix notation might indicate what kind of data to
+expect next in the sequence.
+
+Keeping in line with our desire to simplify the problem for the neural
+networks, we instantiated all type holes with the unit type so as to
+give us the simplest possible types to learn. For example, when the
+type inference algorithm infers the type $\TyArr\tau\tau$ for the term
+$\Fn{x}{x}$ for some type variable $\tau$, we assigned the term the type
+$\TyArr\TyUnit\TyUnit$.
 
 \section{Neural Network and Results}
 
