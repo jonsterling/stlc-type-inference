@@ -1,0 +1,130 @@
+\documentclass[17pt]{beamer}
+\usepackage{proof}
+\usetheme[progressbar=frametitle]{metropolis}
+
+\title{Learning Simple Types}
+\date{12 May 2017}
+\author{Costin B\u{a}descu\\Ankush Das\\Ryan Kavanagh\\Jonathan Sterling}
+\institute{15-780 Class Project, Carnegie Mellon University}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem}
+
+\begin{frame}{Problem Statement}
+  \begin{center}
+    Can machine learning be used to do type inference?
+  \end{center}
+\end{frame}
+
+\begin{frame}{Problem Motivation}
+  \begin{center}
+    Type inference is undecidable for interesting languages. Machine
+    learning could serve as a heuristic.
+  \end{center}
+\end{frame}
+
+\section{Approach}
+
+\begin{frame}{Design Paradigm}
+  Our goal was to show \textit{possibility}, and so at every point, we
+  tried to \textit{simplify} the learning problem.
+\end{frame}
+
+\begin{frame}{Simply-typed $\lambda$-calculus With Unit}
+  \begin{align*}
+    e &::= x \mid * \mid \lambda x.e \mid e_1e_2\\
+    \tau &::= 1 \mid \tau_1 \to \tau_2
+  \end{align*}
+  \[\infer{\Gamma, x:\tau \vdash x : \tau}{}\quad
+    \infer{\Gamma \vdash \lambda x.e : \tau_1 \to
+      \tau_2}{\Gamma,x:\tau_1 \vdash e : \tau_2} \]
+  \[ \infer{\Gamma \vdash * : 1}{}\quad \infer{\Gamma \vdash e_1e_2 :
+      \tau_2}{\Gamma \vdash e_1 : \tau_1 \to \tau_2 & \Gamma \vdash
+      e_2 : \tau_1} \]
+\end{frame}
+
+\begin{frame}{Examples}
+  $\lambda x.e$ is analogous to the function notation $x \mapsto e$.
+  \begin{itemize}
+  \item Identity function: $\vdash \lambda x . x : 1 \to 1$.
+  \item First projection: $\vdash \lambda x. \lambda y. x : 1 \to (1 \to 1)$.
+  \item Application of the constant function:
+    $\vdash (\lambda x . *)(\lambda x. x) : 1$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Problem Statement Revisited}
+  \begin{center}
+    Can machine learning be used to infer the types of closed terms of
+    the simply-typed $\lambda$-calculus?
+  \end{center}
+\end{frame}
+
+\begin{frame}{Type Inferencer}
+  \begin{itemize}
+  \item Formalised the simply-typed $\lambda$-calculus in SML.
+  \item Used de Bruijn indices to eliminate irrelevant variable names.
+  \item Implemented Hindley-Milner type inference to infer and check
+    types of terms.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Dataset Generation}
+  \begin{itemize}
+  \item Implemented a randomised algorithm to generate random
+    well-typed terms.
+  \item Generated a dataset containing over 1,000,000 unique pairs of
+    terms and their inferred types.
+  \item Used simplified notation.
+  \end{itemize}
+\end{frame}
+
+\section{Results}
+
+\begin{frame}{A First Pass}
+  The simplest test was to classify terms of types $1$ and $1 \to 1$.
+
+  \begin{example}
+    Is $(\lambda x.\lambda y. x)*$ of type $1$ or $1 \to 1$?
+  \end{example}
+\end{frame}
+
+\begin{frame}{Classification Results}
+  Your Results Here.
+\end{frame}
+
+\begin{frame}{A Second Pass}
+  Given our success, we then tried to classify terms between NNNN
+  different types.
+\end{frame}
+
+\begin{frame}{Classification Results}
+  Your Results Here.
+\end{frame}
+
+\begin{frame}{Sequence-to-Sequence Model}
+  \begin{itemize}
+  \item Used in natural language translation.
+  \item Takes sequences of tokens as input, generates sequences of
+    tokens as output.
+  \item Treat terms as input sequences, types as output sequences.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Sequence-to-Sequence Results}
+  Your Results Here
+\end{frame}
+
+\section{Summary}
+
+\begin{frame}{What have we learned?}
+  \begin{itemize}
+  \item Machine learning can infer types with a surprising amount of
+    success!
+  \end{itemize}
+\end{frame}
+
+\end{document}
