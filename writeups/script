@@ -1,0 +1,54 @@
+Learning Simple Types.
+Names.
+
+We set out to determine whether machine learning can be used to do type
+inference, that is, given an expression in a programming language, can we use
+machine learning to infer its type.
+
+We care about this problem because type inference is undecidable for interesting
+languages. In these cases, machine learning could serve as a useful heuristic.
+
+Our goal was to give a proof of concept that machine learning could be used to
+do type inference. As a result, we tried to simplify the problem as much as
+possible.
+
+We chose to use the simplest possible programming language, the STLC. It
+consists of variables, unit, functions, and function application. Its types are
+given by unit and function types. Its four typing rules are given on this slide.
+
+To clarify the syntax, we give a few examples. For instance, the identity
+function is represented by x maps to x, and it has type unit arrow unit.
+
+We now make our problem statement precise. Can ML be used to infer the types of
+terms in the simply-typed lambda-calculus?
+
+We implemented a type inference engine for the STLC in standard ML. To reduce
+complexity, we used de Bruijn indices.
+
+We then generated a dataset of over one million unique pairs of well-typed terms
+and their associated types.
+
+We used the sequence-to-sequence model commonly used in natural language
+translation. It takes sequences of tokens as input, for example, a sentence in
+French, and generates a sequence of tokens as output, for example, a sentence in
+German. We treated terms as input sequences and types as output sequences.
+
+This model consists of a bidirectional RNN encoder and an attention decoder.
+
+As a first attempt, we attempted to classify terms of lambda depth 1 into two
+types.
+
+After 10,000 training steps, we achieved 100% accuracy and a BLEU score of 100.
+
+We then tried to classify these terms between 3 types, achieving nearly 99%
+accuracy.
+
+Next, we tried to classify more complex expressions between two types, again
+achieving remarkable accuracy.
+
+Finally, we used the sequence-to-sequence model to generate the type of a
+lambda-term. We correctly inferred the type of an expression 75.37% of the type.
+
+In conclusion, we learned that machine learning can classify types with a
+surprising amount of success, and that sequence-to-sequence models can often
+correctly infer types.
