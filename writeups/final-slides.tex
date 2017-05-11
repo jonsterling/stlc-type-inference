@@ -1,6 +1,7 @@
 \documentclass[17pt]{beamer}
 \usepackage{proof}
 \usetheme[progressbar=frametitle]{metropolis}
+\newtheorem{res}{Results}
 
 \title{Learning Simple Types}
 \date{12 May 2017}
@@ -82,28 +83,7 @@
   \end{itemize}
 \end{frame}
 
-\section{Results}
-
-\begin{frame}{A First Pass}
-  The simplest test was to classify terms of types $1$ and $1 \to 1$.
-
-  \begin{example}
-    Is $(\lambda x.\lambda y. x)*$ of type $1$ or $1 \to 1$?
-  \end{example}
-\end{frame}
-
-\begin{frame}{Classification Results}
-  Your Results Here.
-\end{frame}
-
-\begin{frame}{A Second Pass}
-  Given our success, we then tried to classify terms between NNNN
-  different types.
-\end{frame}
-
-\begin{frame}{Classification Results}
-  Your Results Here.
-\end{frame}
+\section{Methodology}
 
 \begin{frame}{Sequence-to-Sequence Model}
   \begin{itemize}
@@ -114,6 +94,51 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{Our Method}
+  Used sequence to sequence model for classification with
+  a bidirectional RNN encoder and an attention decoder.
+\end{frame}
+
+\section{Results}
+
+\begin{frame}{A First Pass}
+  The simplest test was to classify terms of types $1$ and $1 \to 1$.\\
+  Restricted expressions to lambda depth $1$.
+
+  \begin{example}
+    Is $(\lambda x. x)*$ of type $1$ or $1 \to 1$?
+  \end{example}
+\end{frame}
+
+\begin{frame}{Classification Results}
+  Generated 11,882 input-output pairs.\\
+  Split data into 80\% training set, 10\% validation set, 10\% test set.\\
+  Training Steps = 10,000
+  \begin{res}
+  Accuracy = $100\%$, BLEU score = $100$
+  \end{res}
+\end{frame}
+
+\begin{frame}{Classification between 3 types}
+  Given our success, we then tried to classify terms of depth 1 into
+  3 types.\\
+  $1 \qquad 1 \to 1 \qquad 1 \to (1 \to 1)$\\
+  18,337 input-output pairs.
+  \begin{res}
+  Accuracy = $98.78\%$, BLEU score = $99.26$
+  \end{res}
+\end{frame}
+
+\begin{frame}{Arbitrary expressions}
+  We then tried to classify expressions of arbitrary lambda depth
+  into 2 types.\\
+  $1 \qquad 1 \to 1$\\
+  137,936 input-output pairs.
+  \begin{res}
+  Accuracy = $98.49\%$, BLEU score = $98.75$
+  \end{res}
+\end{frame}
+
 \begin{frame}{Sequence-to-Sequence Results}
   Your Results Here
 \end{frame}
@@ -122,8 +147,10 @@
 
 \begin{frame}{What have we learned?}
   \begin{itemize}
-  \item Machine learning can infer types with a surprising amount of
+  \item Machine learning can classify types with a surprising amount of
     success!
+  \item Sequence-to-sequence models work well to generate types with
+    reasonable accuracy.
   \end{itemize}
 \end{frame}
 
