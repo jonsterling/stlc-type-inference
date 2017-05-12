@@ -575,11 +575,11 @@ $(\tau_t)_{t \geq 1}$ with the embedding $\tau_t$ at time step $t$.
 The hidden state in the decoder $\Htd{t}$ is computed
 using the following.
 \[
-\Define{\Htd{t}}{\text{enc}([\tau_{t-1} ; \mathbf{c}_{t-1}], \Htd{t-1})}
+\Define{\Htd{t}}{\mathsf{enc}([\tau_{t-1} ; \mathbf{c}_{t-1}], \Htd{t-1})}
 \]
 Based on this hidden state $\Htd{t}$, we calculate an attention score $\Al{t}$
 \[
-\Define{\Al{t, j}}{\text{attn\_score}(\Ht{j}, \Htd{t})}
+\Define{\Al{t, j}}{\mathsf{attn\_score}(\Ht{j}, \Htd{t})}
 \]
 where attn\_score is an arbitrary function that takes two vectors as input,
 and produces the focussing as output, quite often just computing the dot
