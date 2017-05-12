@@ -93,6 +93,7 @@
 \newcommand{\Ht}[1]{\mathbf{h}_{#1}}
 \newcommand{\Htf}[1]{\overrightarrow{\mathbf{h}}_{#1}}
 \newcommand{\Htb}[1]{\overleftarrow{\mathbf{h}}_{#1}}
+\newcommand{\Htd}[1]{\mathbf{h}^{\tau}_{#1}}
 \newcommand{\Al}[1]{\alpha_{#1}}
 
 
@@ -470,7 +471,7 @@ the term $\IMode{\Fn{x}{x}}$ for some type variable $\OMode{\alpha}$, we
 assigned the term the type $\OMode{\TyArr\TyUnit\TyUnit}$.
 
 \section{Neural Network Models}
-We introduce the main neural model that we have used for type inference
+We introduce the main neural network model that we have used for type inference
 of terms from the Simply Typed Lambda Calculus (\STLC{}). We introduce
 some preliminaries that we need to explain encoder-decoder models that
 have essentially been used for type inference in our setting.
@@ -479,7 +480,7 @@ have essentially been used for type inference in our setting.
 RNNs~\cite{Elman90RNN} are a special class of neural networks which
 are used to model long-distance dependencies. If we treat the source
 expression $S$ as a sequence of characters $(\st{t})_{t \geq 1}$, with 
-character $\st{t}$ at time step $t$, then
+embedding $\st{t}$ at time step $t$, then
 an RNN simply adds a connection to the previous hidden state when
 computing the current hidden state.
 \[
@@ -501,12 +502,12 @@ a robust variant of RNN called Gated Recurrent Unit (GRU)~\cite{GRU-NIPS14}.
 We give a brief overview of encoder-decoder models~\cite{SutskeverSeq2Seq}
 with more details
 of the specific architecture used to solve our type inference problem.
-Given a source expression $S$ and target type $T$, these models
-are used to model the probability $P(T \mid S)$. The basic idea of the
+Given a source expression $S$ and target type $\tau$, these models
+are used to model the probability $P(\tau \mid S)$. The basic idea of the
 model is the following : a first neural network (the encoder) takes the
 source expression $S$ and encodes it as a vector of real-valued numbers,
 while a second neural network (the decoder) takes this vector as input
-and decodes it to generate a target type $T$.
+and decodes it to generate a target type $\tau$.
 
 We first describe the encoding phase. We use a bidirectional RNN encoder
 \cite{BiRNN} with a GRU cell. In this method, we use two different
@@ -527,7 +528,7 @@ the input sequence of characters $(\st{t})_{t \geq 1}$.
 \mathbf{0} & \text{otherwise}
 \end{cases}
 \]
-The initial vector $\Ht{0}$ for the decoder RNN is obtained by simply
+The initial vector $\Htd{0}$ for the decoder RNN is obtained by simply
 concatenating the vectors $\Htf{|S|}$ and $\Htb{1}$. Hence, the
 bidirectional representation of the source expression is the concatenation
 of the forward and backward units.
@@ -540,11 +541,34 @@ column corresponds to one character in the source expression.
 H = \text{concat\_col}(\Ht{1}, \Ht{2}, \ldots, \Ht{|S|})
 \]
 
-That describes the encoder model. We use an attention decoder to generate
+That describes the encoder model. We use an attention decoder
+with a GRU cell to generate
 the type from this bidirectional representation. This decoder calculates
 a vector $\Al{t}$ that can be used to combine together the columns of $H$
 into a vector $\mathbf{c}_t = H \Al{t}$. The attention vector basically denotes
-the focussing on a particular source word at a particular time step.
+the focussing on a particular source word at a particular time step. The larger
+the $\Al{t}$, the more impact a character will have in predicting the next
+character in the type. These $\Al{t}$'s are computed while tracking the state
+in the decoder RNN. Suppose the output type is a sequence of characters
+$(\tau_t)_{t \geq 1}$ with the embedding $\tau_t$ at time step $t$.
+The hidden state in the decoder $\Htd{t}$ is computed
+using the following.
+\[
+\Htd{t} = \text{enc}([\tau_{t-1} ; \mathbf{c}_{t-1}], \Htd{t-1})
+\]
+Based on this hidden state $\Htd{t}$, we calculate an attention score $\Al{t}$
+\[
+\Al{t, j} = \text{attn\_score}(\Ht{j}, \Htd{t})
+\]
+where attn\_score is an arbitrary function that takes two vectors as input,
+and produces the focussing as output, quite often just computing the dot
+product of the two vectors.
+
+That concludes the description of the decoder used in our model. With this
+bidirectional RNN encoder and attention decoder, we train the model for
+type inference.
+
+\section{Implementation and Results}
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
 
