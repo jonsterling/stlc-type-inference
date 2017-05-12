@@ -271,31 +271,36 @@ $\DBFn{\DBFn{\overline{1}(\overline{0})}}$ in De Bruijn notation.
 
 
 \begin{figure*}
-  \begin{align*}
-    \IMode{\tau} &::= \FormatList{\OMode}{\mid}{\alpha, \TyUnit,\TyArr{\IMode{\tau}}{\IMode{\tau}}}
-    \tag{Types}
-    \\
-    \IMode{e} &::= \FormatList{\OMode}{\mid}{\Var{n}, \Nil, \DBFn{\IMode{e}}, \IMode{e}(\IMode{e})}
-    \tag{Programs}
-    \\
-    \IMode{\Gamma} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\Gamma},\IMode{\tau}}}
-    \tag{Typing contexts}
-    \\
-    \IMode{\mathcal{G}} &::= \OMode{\MkGoal{\IMode{\Gamma}}{\IMode{e}}{\IMode{\tau}}}
-    \tag{Typing goals}
-    \\
-    \IMode{\mathcal{S}} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\mathcal{G}},\IMode{\mathcal{S}}}}
-    \tag{Typing stacks}
-    \\
-    \IMode{\mathcal{E}} &::= \OMode{\MkEq{\IMode{e}}{\IMode{e}}}
-    \tag{Unification equations}
-    \\
-    \IMode{\mathcal{C}} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\mathcal{E}},\IMode{\mathcal{C}}}}
-    \tag{Unification constraints}
-    \\
-    \IMode{\gamma} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\alpha}\hookrightarrow\IMode{\tau},\IMode{\gamma}}}
-    \tag{Substitutions}
-  \end{align*}
+  \begin{gather*}
+    \begin{aligned}
+      \IMode{\tau} &::= \FormatList{\OMode}{\mid}{\alpha, \TyUnit,\TyArr{\IMode{\tau}}{\IMode{\tau}}}
+      &\text{(Types)}
+      \\
+      \IMode{e} &::= \FormatList{\OMode}{\mid}{\Var{n}, \Nil, \DBFn{\IMode{e}}, \IMode{e}(\IMode{e})}
+      &\text{(Programs)}
+      \\
+      \IMode{\Gamma} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\Gamma},\IMode{\tau}}}
+      &\text{(Typing contexts)}
+      \\
+      \IMode{\mathcal{G}} &::= \OMode{\MkGoal{\IMode{\Gamma}}{\IMode{e}}{\IMode{\tau}}}
+      &\text{(Typing goals)}
+    \end{aligned}
+    \qquad\qquad
+    \begin{aligned}
+      \IMode{\mathcal{S}} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\mathcal{G}},\IMode{\mathcal{S}}}}
+      &\text{(Typing stacks)}
+      \\
+      \IMode{\mathcal{E}} &::= \OMode{\MkEq{\IMode{e}}{\IMode{e}}}
+      &\text{(Unification equations)}
+      \\
+      \IMode{\mathcal{C}} &::= \FormatList{\OMode}{\mid}{\cdot,{\IMode{\mathcal{E}},\IMode{\mathcal{C}}}}
+      &\text{(Unification constraints)}
+      \\
+      \IMode{\gamma} &::= \FormatList{\OMode}{\mid}{\cdot, {\IMode{\alpha}\hookrightarrow\IMode{\tau},\IMode{\gamma}}}
+      &\text{(Substitutions)}
+    \end{aligned}    
+  \end{gather*}
+
 
   Write $\IMode{\Subst{\gamma}{-}}$ for the action of the substitution
   $\IMode{\gamma}$, which proceeds by replacing $\IMode{\alpha}$ with
