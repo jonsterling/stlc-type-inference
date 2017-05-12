@@ -248,10 +248,11 @@ permutations of bound variable names.
 
 In a De Bruijn presentation, operators with binding structure do not
 bind a \emph{name} (as in $\Fn{x}{\ldots}$); instead, the arguments to
-a binding operator are specified by a numeric offset which says
-\emph{how many} variables are to bound. In the case of the functional
-abstraction operator, the De Bruijn presentation is $\DBFn{\ldots}$,
-and the valence of its argument is $1$.
+a binding operator are specified by a numeric offset (called a
+``valence'') which says \emph{how many} variables are to bound. In the
+case of the xfunctional abstraction operator, the De Bruijn
+presentation is $\DBFn{\ldots}$, and the valence of its argument is
+$1$.
 
 Then, a variable is written as a numeral which specifies the number of
 binders between it and its binder. For example, the term
