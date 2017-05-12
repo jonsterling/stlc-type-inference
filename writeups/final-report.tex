@@ -150,9 +150,14 @@ heuristics take the form of \emph{proof
   tactics}~\cite{gordon-milner-wadsworth:1979,paulson:1987,gordon:2000}. It
 is also possible to consider heuristics based on external SMT solvers
 as in the \FStar{}~language~\cite{ahman-et-al:2017}, which uses the Z3
-solver to resolve obligations. Finally, machine learning techniques
-have also been applied to interactive proof assistants such as
-Coq~\cite{komendantskaya-heras-grov:2012}.
+solver to resolve obligations.
+
+Finally, machine learning techniques have also been applied to
+interactive proof assistants such as
+Coq~\cite{komendantskaya-heras-grov:2012} to prove \emph{proof hints}
+during interactive proof development: for instance, Komendantskaya and
+Heras' system can suggest auxiliary lemmas or tactics to be applied,
+based on context.
 
 \paragraph{Thesis}
 We believe that at the current stage of scientific development, where
@@ -579,7 +584,7 @@ with a GRU cell to generate
 the type from this bidirectional representation. This decoder calculates
 a vector $\Al{t}$ that can be used to combine together the columns of $H$
 into a vector $\Define{\mathbf{c}_t}{H \Al{t}}$. The attention vector basically denotes
-the focussing on a particular source word at a particular time step. The larger
+the focusing on a particular source word at a particular time step. The larger
 the $\Al{t}$, the more impact a character will have in predicting the next
 character in the type. These $\Al{t}$s are computed while tracking the state
 in the decoder RNN. Suppose the output type is a sequence of embeddings
@@ -594,7 +599,7 @@ Based on this hidden state $\Htd{t}$, we calculate an attention score $\Al{t}$
 \Define{\Al{t, j}}{\mathsf{attn\_score}(\Ht{j}, \Htd{t})}
 \]
 where attn\_score is an arbitrary function that takes two vectors as input,
-and produces the focussing as output, quite often just computing the dot
+and produces the focusing as output, quite often just computing the dot
 product of the two vectors.
 
 That concludes the description of the decoder used in our model. With this
