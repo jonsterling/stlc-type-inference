@@ -6,7 +6,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{eulervm}
 \usepackage{sectsty}
-\usepackage{notation/modes}
+\usepackage[bw]{notation/modes}
+\usepackage{notation/judgments}
 \usepackage{notation/lists}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{proof}
@@ -51,10 +52,14 @@
   \DeclBox{\OBox{\text{#2}}}%
 }
 
+\newcommand\Abs[1]{\left\vert{#1}\right\vert}
+\newcommand\Squares[1]{\left[#1\right]}
+
+\newcommand\IsGEQ[2]{\IMode{#1}\geq\IMode{#2}}
+\newcommand\IsLEQ[2]{\IMode{#1}\leq\IMode{#2}}
 
 \newcommand\Nat{\mathbb{N}}
-\newcommand\Member[2]{\IMode{#1}\in\IMode{#2}}
-\newcommand\STLC{\textbf{STLC}}
+\newcommand\STLC{{\sffamily\bfseries{}STLC}}
 \newcommand\FStar{\ensuremath{\text{F}^\star}}
 \newcommand\RedPRL{\textbf{\textcolor{red}{Red}PRL}}
 
@@ -478,73 +483,93 @@ have essentially been used for type inference in our setting.
 \subsection{Recurrent Neural Networks (RNNs)}
 RNNs~\cite{Elman90RNN} are a special class of neural networks which
 are used to model long-distance dependencies. If we treat the source
-expression $S$ as a sequence of characters $(\st{t})_{t \geq 1}$, with 
-character $\st{t}$ at time step $t$, then
-an RNN simply adds a connection to the previous hidden state when
-computing the current hidden state.
+expression $e$ as a sequence of characters ${(\st{t})}_{t \geq 1}$,
+with character $\st{t}$ at time step $t$, then an RNN simply
+adds a connection to the previous hidden state when computing the
+current hidden state.
 \[
-\Ht{t} =
-\begin{cases}
-\tanh(W_{sh}\st{t} + W_{hh}\Ht{t-1} + \mathbf{b}_h) & t \geq 1 \\
-\mathbf{0} & \text{otherwise}
-\end{cases}
+  \Define{
+    \Ht{t}
+  }{
+    \begin{cases}
+      \tanh(W_{sh}\st{t} + W_{hh}\Ht{t-1} + \mathbf{b}_h) & \OBox{\IsGEQ{t}{q}}\\
+      \mathbf{0} & \text{otherwise}
+    \end{cases}
+  }
 \]
-The above equation is often abbreviated as $\Ht{t} = \RNN{\st{t}}{\Ht{t-1}}$
-The matrices $W_{sh}, W_{hh}$ and vectors $b_h$ are parameters
-that are learned during training. RNNs are able to model long distance
-dependencies because they can pass information between time steps.
-Typically, RNNs suffer from the problem of vanishing and exploding
-gradients, hence we use
-a robust variant of RNN called Gated Recurrent Unit (GRU)~\cite{GRU-NIPS14}.
+The above equation is often abbreviated as
+$\Define{\Ht{t}}{\RNN{\st{t}}{\Ht{t-1}}}$.  The matrices
+$W_{sh}, W_{hh}$ and vectors $b_h$ are parameters that are learned
+during training. RNNs are able to model long distance dependencies
+because they can pass information between time steps.  Typically, RNNs
+suffer from the problem of vanishing and exploding gradients, hence we
+use a robust variant of RNN called Gated Recurrent Unit
+(GRU)~\cite{GRU-NIPS14}.
 
 \subsection{Encoder-Decoder Models}
-We give a brief overview of encoder-decoder models~\cite{SutskeverSeq2Seq}
-with more details
-of the specific architecture used to solve our type inference problem.
-Given a source expression $S$ and target type $T$, these models
-are used to model the probability $P(T \mid S)$. The basic idea of the
-model is the following : a first neural network (the encoder) takes the
-source expression $S$ and encodes it as a vector of real-valued numbers,
-while a second neural network (the decoder) takes this vector as input
-and decodes it to generate a target type $T$.
+We give a brief overview of encoder-decoder
+models~\cite{SutskeverSeq2Seq} with more details of the specific
+architecture used to solve our type inference problem.  Given a source
+expression $e$ and target type $\tau$, these models are used to model
+the probability $\mathsf{P}(\tau \mid e)$. The basic idea of the model
+is the following: a first neural network (the encoder) takes the
+source expression $e$ and encodes it as a vector of real-valued
+numbers, while a second neural network (the decoder) takes this vector
+as input and decodes it to generate a target type $\tau$.
 
-We first describe the encoding phase. We use a bidirectional RNN encoder
-\cite{BiRNN} with a GRU cell. In this method, we use two different
-encoders : one traveling forward and another traveling backward over
-the input sequence of characters $(\st{t})_{t \geq 1}$.
+We first describe the encoding phase. We use a bidirectional RNN
+encoder~\cite{BiRNN} with a GRU cell. In this method, we use two
+different encoders: one traveling forward and another traveling
+backward over the input sequence of characters
+${(\st{t})}_{t \geq 1}$.
 
-\[
-\Htf{t} =
-\begin{cases}
-\RNNf{\st{t}}{\Htf{t-1}}& t \geq 1 \\
-\mathbf{0} & \text{otherwise}
-\end{cases}
-\]
-\[
-\Htb{t} =
-\begin{cases}
-\RNNb{\st{t}}{\Htb{t+1}}& t \leq |S| \\
-\mathbf{0} & \text{otherwise}
-\end{cases}
-\]
+\begin{align*}
+  \ADefine{
+    \Htf{t}
+  }{
+    \begin{cases}
+      \RNNf{\st{t}}{\Htf{t-1}}& \IsGEQ{t}{1} \\
+      \mathbf{0} & \text{otherwise}
+    \end{cases}
+  }
+  \\
+  \ADefine{
+    \Htb{t}
+  }{
+    \begin{cases}
+      \RNNb{\st{t}}{\Htb{t+1}}& \IsLEQ{t}{\Abs{S}}\\
+      \mathbf{0} & \text{otherwise}
+    \end{cases}
+  }
+\end{align*}
+
 The initial vector $\Ht{0}$ for the decoder RNN is obtained by simply
-concatenating the vectors $\Htf{|S|}$ and $\Htb{1}$. Hence, the
-bidirectional representation of the source expression is the concatenation
-of the forward and backward units.
+concatenating the vectors $\Htf{\Abs{S}}$ and $\Htb{1}$. Hence, the
+bidirectional representation of the source expression is the
+concatenation of the forward and backward units.
 \[
-\Ht{t} = [\Htf{t} ; \Htb{t}]
+  \Define{
+    \Ht{t}
+  }{
+    \Squares{\Htf{t} ; \Htb{t}}
+  }
 \]
 We can further concatenate these vectors into a matrix where every
 column corresponds to one character in the source expression.
 \[
-H = \text{concat\_col}(\Ht{1}, \Ht{2}, \ldots, \Ht{|S|})
+  \Define{H}{
+    \text{concat\_col}\left(\Ht{1}, \Ht{2}, \ldots, \Ht{\Abs{S}}\right)
+  }
 \]
 
-That describes the encoder model. We use an attention decoder to generate
-the type from this bidirectional representation. This decoder calculates
-a vector $\Al{t}$ that can be used to combine together the columns of $H$
-into a vector $\mathbf{c}_t = H \Al{t}$. The attention vector basically denotes
-the focussing on a particular source word at a particular time step.
+That describes the encoder model. We use an attention decoder to
+generate the type from this bidirectional representation. This decoder
+calculates a vector $\Al{t}$ that can be used to combine
+together the columns of $H$ into a vector
+$\Define{\mathbf{c}_t}{H \Al{t}}$. The attention vector
+  basically denotes the focussing on a particular source word at a
+  particular time step.
+
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
 
