@@ -566,7 +566,7 @@ That describes the encoder model. We use an attention decoder
 with a GRU cell to generate
 the type from this bidirectional representation. This decoder calculates
 a vector $\Al{t}$ that can be used to combine together the columns of $H$
-into a vector $\mathbf{c}_t = H \Al{t}$. The attention vector basically denotes
+into a vector $\Define{\mathbf{c}_t}{H \Al{t}}$. The attention vector basically denotes
 the focussing on a particular source word at a particular time step. The larger
 the $\Al{t}$, the more impact a character will have in predicting the next
 character in the type. These $\Al{t}$s are computed while tracking the state
