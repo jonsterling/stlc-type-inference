@@ -253,9 +253,9 @@ a binding operator are specified by a numeric offset which says
 abstraction operator, the De Bruijn presentation is $\DBFn{\ldots}$,
 and the valence of its argument is $1$.
 
-Then, variables are written as numerals which specify the distance in
-edges from the variable to its binder in the syntax tree. For
-example, the term $\Fn{x}{\Fn{y}{x(y)}}$ is written
+Then, a variable is written as a numeral which specifies the number of
+binders between it and its binder. For example, the term
+$\Fn{x}{\Fn{y}{x(y)}}$ is written
 $\DBFn{\DBFn{\overline{1}(\overline{0})}}$ in De Bruijn notation.
 
 \paragraph{Type inference algorithm}
@@ -459,7 +459,9 @@ network.
     local decomposition of typing problems, evaluation of typing
     problem stacks into constraint sets, local decomposition of
     equational constraints, and evaluation of constraint sets into
-    substitutions.}\label{fig:algorithmic-type-inference}
+    substitutions. We have implemented this algorithm in the
+    \textbf{Standard~ML} programming
+    language.}\label{fig:algorithmic-type-inference}
 \end{figure*}
 
 
