@@ -613,9 +613,20 @@ for Tensorflow. This framework can be used for machine translation, text
 summarization, image captioning, etc. We have used this framework
 for type inference of expressions in \STLC{}, i.e. given expression $e$ in
 \STLC{} as a sequence of characters, we produce a type $\tau$ as a sequence
-of characters. Since our goal was to show \textit{possibility}, we started out
+of characters. 
+
+We used the same complexity of the neural network for
+each task. As discussed earlier, we used a bidirectional RNN encoder
+with an attention decoder. We set the number of units in the attention
+layer to 128. The embedding dimension is also 128. The number of
+layers both in the encoder and decoder is 1. The input dropout
+probability is 0.8 while the output dropout probability is 1 in both
+the encoder and decoder. We trained our model for 10,000 steps
+and used a batch size of 32.
+
+Since our goal was to show \textit{possibility}, we started out
 with the simplest task possible, and gradually increased the difficulty of the
-tasks performed. We list each task below.
+tasks performed. We list each task below with the accuracy of our model.
 
 \paragraph{Expressions of lambda depth 1}
 We first restricted expressions to be of lambda depth 1. This means that
@@ -648,37 +659,46 @@ With this success, we moved to solving a fairly difficult problem where
 we did not restrict the lambda depth of the expression. We restricted the
 number of types to only two, i.e. $1$ and $\TyArr{1}{1}$. The vocabulary
 of the source expression was $(, ), \backslash, 0, 1, 2, \ldots, 19$, i.e.
-the maximum depth of 19. We generated 
+the maximum depth of 19. We generated 137,936 expression-type pairs
+and obtained an accuracy of 98.49\% on the test set.
 
-We used Google's \texttt{seq2seq} library, a general-purpose
-encoder-decoder framework for Tensorflow, as the basis for our
-implementation. We approached the problem of learning type inference by
-solving several classification problems of increasing difficulty.
+%We used Google's \texttt{seq2seq} library, a general-purpose
+%encoder-decoder framework for Tensorflow, as the basis for our
+%implementation. We approached the problem of learning type inference by
+%solving several classification problems of increasing difficulty.
+%
+%We first considered the binary classification problem of distinguishing
+%whether an expression of depth $1$ is of type $1$ or $1 \to 1$. We used
+%$11,882$ input-output pairs, a training set of size $80\%$, a validation
+%set of size $10\%$, and a test set of size $10\%$. After $10,000$
+%training steps, the model was able to correctly classify all of the
+%samples in our test set.
+%
+%We then tried to classify terms of depth $1$ into $3$ types $1$, $1 \to
+%1$, and $1 \to (1 \to 1)$. Using $18,337$ input-output pairs, our model
+%predicts the correct type with $98.78\%$ accuracy.
+%
+%We also tried to classify expressions of arbitrary depth into $2$ types
+%and achieved an accuracy of $98.49\%$ using $137,936$ input-output
+%pairs.
 
-We first considered the binary classification problem of distinguishing
-whether an expression of depth $1$ is of type $1$ or $1 \to 1$. We used
-$11,882$ input-output pairs, a training set of size $80\%$, a validation
-set of size $10\%$, and a test set of size $10\%$. After $10,000$
-training steps, the model was able to correctly classify all of the
-samples in our test set.
-
-We then tried to classify terms of depth $1$ into $3$ types $1$, $1 \to
-1$, and $1 \to (1 \to 1)$. Using $18,337$ input-output pairs, our model
-predicts the correct type with $98.78\%$ accuracy.
-
-We also tried to classify expressions of arbitrary depth into $2$ types
-and achieved an accuracy of $98.49\%$ using $137,936$ input-output
-pairs.
-
-Finally, we considered the general problem of inferring the types of
-general expressions using a neural network. We treated this as a
-translation problem and provided the neural network with $100,000$
-training samples consisting of terms paired with their corresponding
-types. We used $10,000$ test samples. After training the neural network
+\paragraph{Arbitrary expressions and types}
+Finally, we considered the most general problem of inferring the types of
+arbitrary expressions using our encoder-decoder model. We treated this as a
+translation problem (instead of classifcation)
+and provided the framework with $100,000$
+training samples of expression-type pairs.
+We used $10,000$ test samples. After training the neural network
 for $10,000$ steps, the model correctly predicts the type of $77.1\%$ of
-the expressions in the test set. Given that this learning problem
-corresponds to a multiclass classification problem with an infinite
-number of classes, we find this result to be very encouraging.
+the expressions in the test set.
+
+These results show that encoder-decoder frameworks can be
+successfully used in a restricted setting where the number of types are
+limited. Since the network sizes we have used in this experiment are fairly
+small (due to our limited computation power), we believe more complicated
+networks can provide higher accuracies.
+
+\section{Conclusion}
 
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
