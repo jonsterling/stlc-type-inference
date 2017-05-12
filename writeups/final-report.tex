@@ -600,6 +600,36 @@ type inference.
 
 \section{Implementation and Results}
 
+We used Google's \texttt{seq2seq} library, a general-purpose
+encoder-decoder framework for Tensorflow, as the basis for our
+implementation. We approached the problem of learning type inference by
+solving several classification problems of increasing difficulty.
+
+We first considered the binary classification problem of distinguishing
+whether an expression of depth $1$ is of type $1$ or $1 \to 1$. We used
+$11,882$ input-output pairs, a training set of size $80\%$, a validation
+set of size $10\%$, and a test set of size $10\%$. After $10,000$
+training steps, the model was able to correctly classify all of the
+samples of our test set.
+
+We then tried to classify terms of depth $1$ into $3$ types $1$, $1 \to
+1$, and $1 \to (1 \to 1)$. Using $18,337$ input-output pairs, our model
+predicts the correct type with $98.78\%$ accuracy.
+
+We also tried to classify expressions of arbitrary depth into $2$ types
+and achieved an accuracy of $98.49\%$ using $137,936$ input-output
+pairs.
+
+Finally, we considered the general problem of inferring the types of
+general expressions using a neural network. We treated this as a
+translation problem and provided the neural network with $100,000$
+training samples consisting of terms paired with their corresponding
+types. We used $10,000$ test samples. After training the neural network
+for $10,000$ steps, the model correctly predicts the type of $77.1\%$ of
+the expressions in the test set. Given that this learning problem
+corresponds to a multiclass classification problem with an infinite
+number of classes, we find this result to be very encouraging.
+
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
 
