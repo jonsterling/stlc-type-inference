@@ -134,7 +134,9 @@ type systems vary wildly depending on their characteristics.
     dependent types}) support only \textbf{type proving}: given a
   piece of code, a type, and a candidate derivation (proof) that this
   code exhibits this type, we can decide whether this derivation is
-  correct.
+  correct.\footnote{In this case, type \emph{checking} may not even be
+    semidecidable, because the typing relation is semantic rather than
+    being defined by a recursively enumerable set of rules.}
 \end{enumerate}
 
 As can be seen above, available implementation strategies dwindle as
