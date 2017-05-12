@@ -701,6 +701,15 @@ small (due to our limited computation power), we believe more complicated
 networks can provide higher accuracies.
 
 \section{Conclusion}
+We learned that encoder-decoder models are a viable framework
+for type inference. Since type inference, at its core, is a generation
+problem, rather than a classification problem, these models are a
+natural neural network choice. We have seen that, in the restricted
+setting of classification, these models performed extremely well
+with an accuracy above 98\%. During generation, a fairly small
+network model was able to generate the correct type with a reasonable
+accuracy of 77\%. Thus, deep learning can serve as a possible
+heuristic in producing types for arbitrary expressions.
 
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
