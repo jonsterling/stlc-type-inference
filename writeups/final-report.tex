@@ -236,6 +236,7 @@ for the states of the type inference machine, including typing goals,
 typing goal stacks, unification equations, unification constraint
 sets, and type substitutions.
 
+\paragraph{De Bruijn Indices}
 Additionally, in this treatment we use De Bruijn indices rather than
 names to account for binding; De Bruijn indices reflect the
 address/location of a variable's binding in a syntax tree.
@@ -244,6 +245,22 @@ Among other things, De Bruijn presentations of calculi with binding
 structure are easier to work with computationally, because they
 eliminate the need to consider equivalence classes of terms under
 permutations of bound variable names.
+
+In a De Bruijn presentation, operators with binding structure do not
+bind a \emph{name} (as in $\Fn{x}{\ldots}$); instead, the arguments to
+a binding operator are specified by a numeric offset which says
+\emph{how many} variables are to bound. In the case of functional
+abstraction operator, the De Bruijn presentation is $\DBFn{\ldots}$,
+and the valence of its argument is $1$.
+
+Then, variables are written as numerals which specify the distance in
+edges from the variable to its binder in the syntax tree. For
+example, the term $\Fn{x}{\Fn{y}{x(y)}}$ is written
+$\DBFn{\DBFn{\overline{1}(\overline{0})}}$ in De Bruijn notation.
+
+\paragraph{Type inference algorithm}
+
+
 
 \begin{figure*}
   \begin{align*}
