@@ -1,4 +1,4 @@
-\documentclass[twocolumn,9pt]{article}
+\documentclass[twocolumn]{article}
 \usepackage{fullpage}
 \usepackage{libertineRoman}
 \usepackage{microtype}
@@ -134,7 +134,9 @@ type systems vary wildly depending on their characteristics.
     dependent types}) support only \textbf{type proving}: given a
   piece of code, a type, and a candidate derivation (proof) that this
   code exhibits this type, we can decide whether this derivation is
-  correct.
+  correct.\footnote{In this case, type \emph{checking} may not even be
+    semidecidable, because the typing relation is semantic rather than
+    being defined by a recursively enumerable set of rules.}
 \end{enumerate}
 
 As can be seen above, available implementation strategies dwindle as
@@ -607,11 +609,11 @@ bidirectional RNN encoder and attention decoder, we train the model for
 type inference.
 
 \section{Implementation and Results}
-We have used the open source implementation tf-seq2seq~\cite{Britz2017}
-from Google. tf-seq2seq is a general purpose encoder-decoder framework
+We have used the open source implementation \texttt{tf-seq2seq}~\cite{Britz2017}
+from Google. \texttt{tf-seq2seq} is a general purpose encoder-decoder framework
 for Tensorflow. This framework can be used for machine translation, text
 summarization, image captioning, etc. We have used this framework
-for type inference of expressions in \STLC{}, i.e. given expression $e$ in
+for type inference of expressions in \STLC{}, i.e.\ given expression $e$ in
 \STLC{} as a sequence of characters, we produce a type $\tau$ as a sequence
 of characters. 
 
@@ -641,7 +643,7 @@ We also restrict the expressions to have only two types $1$ and $\TyArr{1}{1}$.
 With this fairly restricted model, we trained our encoder-decoder model for
 type inference. We generated 11,882 unique expression-type pairs, and split the
 data into 3 sets, 80\% training set, 10\% validation set and 10\% test set.
-Finally, while producing the output, we used 1-best search, i.e. we generated
+Finally, while producing the output, we used 1-best search, i.e.\ we generated
 the output sequence which had the highest probability given the input
 sequence. With this simple problem, our accuracy was 100\% on the test
 set. With this remarkable accuracy, we increased the difficulty of the problem.
