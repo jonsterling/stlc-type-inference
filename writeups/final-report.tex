@@ -486,10 +486,10 @@ sequentially, and we hypothesised prefix notation might indicate what
 kind of data to expect next in the sequence.
 
 Keeping in line with our desire to simplify the problem for the neural
-networks, we instantiated all type holes with the unit type so as to
-give us the simplest possible types to learn. For example, when the
-type inference algorithm infers the type $\OMode{\TyArr\alpha\alpha}$ for
-the term $\IMode{\Fn{x}{x}}$ for some type variable $\OMode{\alpha}$, we
+networks, we instantiated all type variables with the unit type so as to
+give us the simplest possible types to learn. For example, when the type
+inference algorithm infers the type $\OMode{\TyArr\alpha\alpha}$ for the
+term $\IMode{\Fn{x}{x}}$ for some type variable $\OMode{\alpha}$, we
 assigned the term the type $\OMode{\TyArr\TyUnit\TyUnit}$.
 
 \section{Neural Network Models}
