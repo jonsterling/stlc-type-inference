@@ -150,9 +150,14 @@ heuristics take the form of \emph{proof
   tactics}~\cite{gordon-milner-wadsworth:1979,paulson:1987,gordon:2000}. It
 is also possible to consider heuristics based on external SMT solvers
 as in the \FStar{}~language~\cite{ahman-et-al:2017}, which uses the Z3
-solver to resolve obligations. Finally, machine learning techniques
-have also been applied to interactive proof assistants such as
-Coq~\cite{komendantskaya-heras-grov:2012}.
+solver to resolve obligations.
+
+Finally, machine learning techniques have also been applied to
+interactive proof assistants such as
+Coq~\cite{komendantskaya-heras-grov:2012} to prove \emph{proof hints}
+during interactive proof development: for instance, Komendantskaya and
+Heras' system can suggest auxiliary lemmas or tactics to be applied,
+based on context.
 
 \paragraph{Thesis}
 We believe that at the current stage of scientific development, where
@@ -165,7 +170,7 @@ lambda calculus (\STLC{}) with a single base type.
 
 \section{Simply Typed Lambda Calculus}
 The simply typed lambda calculus (\STLC{}) is the simplest possible
-programming language, and provided a suitable environment in which to
+programming language, and provides a suitable environment in which to
 test our ideas before applying them to more difficult problems. In
 Figure~\ref{fig:stlc-grammar-and-declarative-typing}, we define the
 syntax and \emph{declarative} typing rules for the \STLC{}.
@@ -236,6 +241,7 @@ for the states of the type inference machine, including typing goals,
 typing goal stacks, unification equations, unification constraint
 sets, and type substitutions.
 
+\paragraph{De Bruijn Indices}
 Additionally, in this treatment we use De Bruijn indices rather than
 names to account for binding; De Bruijn indices reflect the
 address/location of a variable's binding in a syntax tree.
@@ -244,6 +250,23 @@ Among other things, De Bruijn presentations of calculi with binding
 structure are easier to work with computationally, because they
 eliminate the need to consider equivalence classes of terms under
 permutations of bound variable names.
+
+In a De Bruijn presentation, operators with binding structure do not
+bind a \emph{name} (as in $\Fn{x}{\ldots}$); instead, the arguments to
+a binding operator are specified by a numeric offset (called a
+``valence'') which says \emph{how many} variables are to bound. In the
+case of the functional abstraction operator, the De Bruijn
+presentation is $\DBFn{\ldots}$, and the valence of its argument is
+$1$.
+
+Then, a variable is written as a numeral which specifies the number of
+binders between it and its binder. For example, the term
+$\Fn{x}{\Fn{y}{x(y)}}$ is written
+$\DBFn{\DBFn{\overline{1}(\overline{0})}}$ in De Bruijn notation.
+
+\paragraph{Type inference algorithm}
+
+
 
 \begin{figure*}
   \begin{align*}
@@ -442,7 +465,9 @@ network.
     local decomposition of typing problems, evaluation of typing
     problem stacks into constraint sets, local decomposition of
     equational constraints, and evaluation of constraint sets into
-    substitutions.}\label{fig:algorithmic-type-inference}
+    substitutions. We have implemented this algorithm in the
+    \textbf{Standard~ML} programming
+    language.}\label{fig:algorithmic-type-inference}
 \end{figure*}
 
 
@@ -460,20 +485,12 @@ well-typed. Generating a sufficient variety of terms required
 carefully tuning the probabilities associated with each type former.
 
 To reduce complexity, we adopted a minimalistic concrete syntax for
-terms and types. We also adopted prefix notation for types. For
-example, we denoted the type
-$\IMode{\TyUnit \to (\TyUnit \to \TyUnit)}$ as
-\cprotect\OMode{\verb!> 1 (> 1 1)!}. We made this design choice
-because the sequence-to-sequence model processes input sequences
-sequentially, and we hypothesised prefix notation might indicate what
-kind of data to expect next in the sequence.
-
-Keeping in line with our desire to simplify the problem for the neural
-networks, we instantiated all type holes with the unit type so as to
-give us the simplest possible types to learn. For example, when the
-type inference algorithm infers the type $\OMode{\TyArr\alpha\alpha}$ for
-the term $\IMode{\Fn{x}{x}}$ for some type variable $\OMode{\alpha}$, we
-assigned the term the type $\OMode{\TyArr\TyUnit\TyUnit}$.
+terms and types and we instantiated all type variables with the unit
+type so as to give us the simplest possible types to learn. For example,
+when the type inference algorithm infers the type
+$\OMode{\TyArr\alpha\alpha}$ for the term $\IMode{\Fn{x}{x}}$ for some
+type variable $\OMode{\alpha}$, we assigned the term the type
+$\OMode{\TyArr\TyUnit\TyUnit}$.
 
 \section{Neural Network Models}
 We introduce the main neural network model that we have used for type inference
@@ -559,30 +576,30 @@ We can further concatenate these vectors into a matrix where every
 column corresponds to one character in the source expression.
 \[
   \Define{H}{
-    \text{concat\_col}\left(\Ht{1}, \Ht{2}, \ldots, \Ht{\Abs{e}}\right)
+    \mathsf{concat\_col}\left(\Ht{1}, \Ht{2}, \ldots, \Ht{\Abs{e}}\right)
   }
 \]
 That describes the encoder model. We use an attention decoder
 with a GRU cell to generate
 the type from this bidirectional representation. This decoder calculates
 a vector $\Al{t}$ that can be used to combine together the columns of $H$
-into a vector $\mathbf{c}_t = H \Al{t}$. The attention vector basically denotes
-the focussing on a particular source word at a particular time step. The larger
+into a vector $\Define{\mathbf{c}_t}{H \Al{t}}$. The attention vector basically denotes
+the focusing on a particular source word at a particular time step. The larger
 the $\Al{t}$, the more impact a character will have in predicting the next
-character in the type. These $\Al{t}$'s are computed while tracking the state
+character in the type. These $\Al{t}$s are computed while tracking the state
 in the decoder RNN. Suppose the output type is a sequence of embeddings
-$(\tau_t)_{t \geq 1}$ with the embedding $\tau_t$ at time step $t$.
+${(\tau_t)}_{t \geq 1}$ with the embedding $\tau_t$ at time step $t$.
 The hidden state in the decoder $\Htd{t}$ is computed
 using the following.
 \[
-\Define{\Htd{t}}{\text{enc}([\tau_{t-1} ; \mathbf{c}_{t-1}], \Htd{t-1})}
+\Define{\Htd{t}}{\mathsf{enc}([\tau_{t-1} ; \mathbf{c}_{t-1}], \Htd{t-1})}
 \]
 Based on this hidden state $\Htd{t}$, we calculate an attention score $\Al{t}$
 \[
-\Define{\Al{t, j}}{\text{attn\_score}(\Ht{j}, \Htd{t})}
+\Define{\Al{t, j}}{\mathsf{attn\_score}(\Ht{j}, \Htd{t})}
 \]
 where attn\_score is an arbitrary function that takes two vectors as input,
-and produces the focussing as output, quite often just computing the dot
+and produces the focusing as output, quite often just computing the dot
 product of the two vectors.
 
 That concludes the description of the decoder used in our model. With this
@@ -632,6 +649,36 @@ we did not restrict the lambda depth of the expression. We restricted the
 number of types to only two, i.e. $1$ and $\TyArr{1}{1}$. The vocabulary
 of the source expression was $(, ), \backslash, 0, 1, 2, \ldots, 19$, i.e.
 the maximum depth of 19. We generated 
+
+We used Google's \texttt{seq2seq} library, a general-purpose
+encoder-decoder framework for Tensorflow, as the basis for our
+implementation. We approached the problem of learning type inference by
+solving several classification problems of increasing difficulty.
+
+We first considered the binary classification problem of distinguishing
+whether an expression of depth $1$ is of type $1$ or $1 \to 1$. We used
+$11,882$ input-output pairs, a training set of size $80\%$, a validation
+set of size $10\%$, and a test set of size $10\%$. After $10,000$
+training steps, the model was able to correctly classify all of the
+samples in our test set.
+
+We then tried to classify terms of depth $1$ into $3$ types $1$, $1 \to
+1$, and $1 \to (1 \to 1)$. Using $18,337$ input-output pairs, our model
+predicts the correct type with $98.78\%$ accuracy.
+
+We also tried to classify expressions of arbitrary depth into $2$ types
+and achieved an accuracy of $98.49\%$ using $137,936$ input-output
+pairs.
+
+Finally, we considered the general problem of inferring the types of
+general expressions using a neural network. We treated this as a
+translation problem and provided the neural network with $100,000$
+training samples consisting of terms paired with their corresponding
+types. We used $10,000$ test samples. After training the neural network
+for $10,000$ steps, the model correctly predicts the type of $77.1\%$ of
+the expressions in the test set. Given that this learning problem
+corresponds to a multiclass classification problem with an infinite
+number of classes, we find this result to be very encouraging.
 
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
