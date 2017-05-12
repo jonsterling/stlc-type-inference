@@ -590,6 +590,48 @@ bidirectional RNN encoder and attention decoder, we train the model for
 type inference.
 
 \section{Implementation and Results}
+We have used the open source implementation tf-seq2seq~\cite{Britz2017}
+from Google. tf-seq2seq is a general purpose encoder-decoder framework
+for Tensorflow. This framework can be used for machine translation, text
+summarization, image captioning, etc. We have used this framework
+for type inference of expressions in \STLC{}, i.e. given expression $e$ in
+\STLC{} as a sequence of characters, we produce a type $\tau$ as a sequence
+of characters. Since our goal was to show \textit{possibility}, we started out
+with the simplest task possible, and gradually increased the difficulty of the
+tasks performed. We list each task below.
+
+\paragraph{Expressions of lambda depth 1}
+We first restricted expressions to be of lambda depth 1. This means that
+only the innermost lambda abstracted variable can be used in an expression.
+For instance, in the expression $\lambda x. \lambda y. e$, $e$ can only
+refer to $y$, the innermost lambda abstracted variable. In the abstract
+syntax tree, this creates a lambda depth of at most 1. In terms of De Bruijn
+index representation, this means that the only integer that can occur in
+the string representation of the expression is 0. This restricts the vocabulary
+of the source expressions to only the characters $(, ), \backslash, 0$.
+We also restrict the expressions to have only two types $1$ and $\TyArr{1}{1}$.
+With this fairly restricted model, we trained our encoder-decoder model for
+type inference. We generated 11,882 unique expression-type pairs, and split the
+data into 3 sets, 80\% training set, 10\% validation set and 10\% test set.
+Finally, while producing the output, we used 1-best search, i.e. we generated
+the output sequence which had the highest probability given the input
+sequence. With this simple problem, our accuracy was 100\% on the test
+set. With this remarkable accuracy, we increased the difficulty of the problem.
+
+\paragraph{Classification into 3 types}
+We then performed classification into 3 types, $1$, $\TyArr{1}{1}$ and
+$\TyArr{1}{(\TyArr{1}{1})}$. We used the same splitting proportion with
+the same parameters that we used in the previous task. We generated
+18,337 expression-type pairs to do type inference. Again, we restricted
+the expression to be of lambda depth 1. With this setting, the accuracy
+on the test set is 98.78\%.
+
+\paragraph{Arbitrary expressions}
+With this success, we moved to solving a fairly difficult problem where
+we did not restrict the lambda depth of the expression. We restricted the
+number of types to only two, i.e. $1$ and $\TyArr{1}{1}$. The vocabulary
+of the source expression was $(, ), \backslash, 0, 1, 2, \ldots, 19$, i.e.
+the maximum depth of 19. We generated 
 
 \bibliographystyle{abbrv}
 \bibliography{refs,references/refs}
