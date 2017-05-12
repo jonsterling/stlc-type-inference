@@ -492,7 +492,7 @@ current hidden state.
     \Ht{t}
   }{
     \begin{cases}
-      \tanh(W_{sh}\st{t} + W_{hh}\Ht{t-1} + \mathbf{b}_h) & \OBox{\IsGEQ{t}{q}}\\
+      \tanh(W_{sh}\st{t} + W_{hh}\Ht{t-1} + \mathbf{b}_h) & \IsGEQ{t}{q}\\
       \mathbf{0} & \text{otherwise}
     \end{cases}
   }
