@@ -477,20 +477,12 @@ well-typed. Generating a sufficient variety of terms required
 carefully tuning the probabilities associated with each type former.
 
 To reduce complexity, we adopted a minimalistic concrete syntax for
-terms and types. We also adopted prefix notation for types. For
-example, we denoted the type
-$\IMode{\TyUnit \to (\TyUnit \to \TyUnit)}$ as
-\cprotect\OMode{\verb!> 1 (> 1 1)!}. We made this design choice
-because the sequence-to-sequence model processes input sequences
-sequentially, and we hypothesised prefix notation might indicate what
-kind of data to expect next in the sequence.
-
-Keeping in line with our desire to simplify the problem for the neural
-networks, we instantiated all type variables with the unit type so as to
-give us the simplest possible types to learn. For example, when the type
-inference algorithm infers the type $\OMode{\TyArr\alpha\alpha}$ for the
-term $\IMode{\Fn{x}{x}}$ for some type variable $\OMode{\alpha}$, we
-assigned the term the type $\OMode{\TyArr\TyUnit\TyUnit}$.
+terms and types and we instantiated all type variables with the unit
+type so as to give us the simplest possible types to learn. For example,
+when the type inference algorithm infers the type
+$\OMode{\TyArr\alpha\alpha}$ for the term $\IMode{\Fn{x}{x}}$ for some
+type variable $\OMode{\alpha}$, we assigned the term the type
+$\OMode{\TyArr\TyUnit\TyUnit}$.
 
 \section{Neural Network Models}
 We introduce the main neural network model that we have used for type inference
